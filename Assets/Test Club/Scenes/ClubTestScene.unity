@@ -356,8 +356,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feb3705d084d9b84995e63467d7f609b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  borderMarginX: 8
+  borderMarginY: -4
   player: {fileID: 1099537211}
   offset: {x: -1, y: -1, z: 0}
+  map: {fileID: 1415036670}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
