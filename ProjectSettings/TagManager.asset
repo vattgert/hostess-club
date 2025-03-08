@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - Floor
+  - Host
+  - Customer
+  - Host List Entry
   layers:
   - Default
   - TransparentFX
