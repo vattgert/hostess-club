@@ -19,7 +19,13 @@ public class HostEntryClick : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // When clicked, tell the TableManager to highlight available tables using this host.
-        this.tablesManager.HighlightAvailableTables();
+        HostEntryUI hostUI = gameObject.GetComponent<HostEntryUI>();
+        if(hostUI != null)
+        {
+            GameObject host = hostUI.GetHost();
+            // When clicked, tell the TableManager to highlight available tables using this host.
+            this.tablesManager.HighlightTablesWaitingForHost(host);
+        }
+        
     }
 }

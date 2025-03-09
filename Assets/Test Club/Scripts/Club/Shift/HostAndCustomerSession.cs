@@ -52,17 +52,6 @@ public class HostAndCustomerSession: MonoBehaviour
     public void SetShiftActive(bool active)
     {
         this.shiftActive = active;
-
-        // If the shift just ended while we're servicing, stop
-        if (!this.shiftActive && this.serviceCoroutine != null)
-        {
-            StopServiceRoutine();
-        }
-        // If the shift became active and we're assigned, we can start serving if needed
-        else if (this.shiftActive && this.assignedCustomer && this.assignedHost && this.serviceCoroutine == null)
-        {
-            StartServiceRoutine();
-        }
     }
 
     /// <summary>
@@ -75,12 +64,12 @@ public class HostAndCustomerSession: MonoBehaviour
         this.assignedCustomer = customer;
         this.customerBehaviour = this.assignedCustomer.GetComponent<CustomerBehavior>();
         this.customer = customerBehaviour.GetCustomer();
-        this.assignedCustomer.transform.SetParent(this.table.transform);
         this.PositionCustomer(this.assignedCustomer);
     }
 
     private void PositionCustomer(GameObject customer)
     {
+        customer.transform.SetParent(this.table.transform);
         customer.transform.position = this.customerPlace.position;
     }
 
@@ -111,11 +100,12 @@ public class HostAndCustomerSession: MonoBehaviour
         this.hostBehaviour = assignedHost.GetComponent<HostBehavior>();
         this.host = hostBehaviour.GetHost();
         this.assignedToCustomer = true;
-        this.assignedHost.transform.SetParent(this.table.transform);
         this.PositionHost(this.assignedHost);
 
         // If the shift is active, begin servicing immediately
-        if (this.shiftActive && this.serviceCoroutine == null)
+        Debug.Log("Shift is active: " + (this.shiftActive == true));
+        Debug.Log("Coroutine is null: " + (this.serviceCoroutine == null));
+        if (this.shiftActive == true && this.serviceCoroutine == null)
         {
             StartServiceRoutine();
         }
@@ -123,7 +113,8 @@ public class HostAndCustomerSession: MonoBehaviour
 
     private void PositionHost(GameObject host)
     {
-        host.transform.localPosition = this.hostPlace.position;
+        host.transform.SetParent(this.table.transform);
+        host.transform.position = this.hostPlace.position;
     }
 
     /// <summary>

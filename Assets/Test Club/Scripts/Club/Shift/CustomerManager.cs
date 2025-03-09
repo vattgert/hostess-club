@@ -12,12 +12,14 @@ public class CustomerManager : MonoBehaviour
     private float lastTriggeredTime;
     private Stack<GameObject> customers;
     private ShiftTimer shiftTimer;
+    private TablesManager tablesManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public event Action<GameObject> OnCustomerEntered;
     void Start()
     {
         this.shiftTimer = gameObject.GetComponent<ShiftTimer>();
+        this.tablesManager = gameObject.GetComponent<TablesManager>();
         lastTriggeredTime = this.shiftTimer.ShitDuration();
         customers = new Stack<GameObject>();
         this.shiftTimer.OnShiftTimerUpdate += this.ServeCustomer;
@@ -34,6 +36,21 @@ public class CustomerManager : MonoBehaviour
         return this.customers;
     }
 
+    private void FormCustomerSprite(GameObject customer)
+    {
+        Sprite triangleSprite = Resources.Load<Sprite>("Triangle");
+        if (triangleSprite == null)
+        {
+            Debug.LogError("Failed to load Triangle sprite!");
+            return;
+        }
+        SpriteRenderer sr = customer.AddComponent<SpriteRenderer>();
+        sr.sprite = triangleSprite;
+        sr.sortingOrder = 1;
+        sr.color = new Color32(1, 125, 243, 255);
+        sr.transform.rotation = Quaternion.Euler(0, 0, 180);
+    }
+
     public void GenerateCustomersPoolForShift() { 
         for(int i = 0; i < 10; i++)
         {
@@ -45,24 +62,9 @@ public class CustomerManager : MonoBehaviour
         }
     }
 
-    private void RenderCustomer(GameObject customer)
+    private void InviteCustomer(GameObject customer)
     {
-        Sprite circleSprite = Resources.Load<Sprite>("Triangle");
-        if (circleSprite == null)
-        {
-            Debug.LogError("Failed to load Triangle sprite!");
-            return;
-        }
-
-        SpriteRenderer sr = customer.AddComponent<SpriteRenderer>();
-        sr.sprite = circleSprite;
-        sr.sortingOrder = 1;
-        sr.color = new Color32(1, 125, 243, 255);
-
-        Vector3Int cellPosition = new Vector3Int(0, 0, 0);
-        Vector3 worldPosition = club.CellToWorld(cellPosition);
-        customer.transform.position = worldPosition;
-        customer.transform.localScale = new Vector3(1, -1, 1);
+        this.FormCustomerSprite(customer);  
         this.OnCustomerEntered.Invoke(customer);
     }
 
@@ -77,15 +79,16 @@ public class CustomerManager : MonoBehaviour
             Debug.Log("20-second mark reached. Time left: " + currentTime);
             // Insert the code you want to execute every 20 seconds here.
             Debug.Log("Time comparison worked");
-            if (this.customers.Count > 0)
+            if (this.customers.Count > 0 && this.tablesManager.HasFreeTables())
             {
-                Debug.Log("We have more than 0 customers!");
+                Debug.Log("We have more than 0 customers in queue and there are free tables!");
                 GameObject customer = this.customers.Pop();
                 if (customer != null)
                 {
-                    Debug.Log("Render customer");
-                    this.RenderCustomer(customer);
-                }
+                    Debug.Log("Invite customer");
+                    this.InviteCustomer(customer);
+
+                } 
             }
         }
     }

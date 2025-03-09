@@ -214,5 +214,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 316399df078b69e4f9dc6cb23f7a525a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isBusy: 0
   isHighlighted: 0

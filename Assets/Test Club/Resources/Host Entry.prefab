@@ -298,6 +298,7 @@ GameObject:
   - component: {fileID: 6544227125355231863}
   - component: {fileID: -428966916405136097}
   - component: {fileID: 5383758195886085355}
+  - component: {fileID: 1436753086525924367}
   m_Layer: 5
   m_Name: Host Entry
   m_TagString: Host List Entry
@@ -360,5 +361,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2037d0788e0619443a1406eba76b4b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1436753086525924367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5174485940262979511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c07fbd5d2353df344843a6ebfefb3bb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

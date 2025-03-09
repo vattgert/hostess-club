@@ -22,6 +22,7 @@ public class HostManager : MonoBehaviour
         {
             Host host = new Host();
             GameObject hostGameObject = new GameObject();
+            hostGameObject.name = host.Name;
             HostBehavior hostBehavior = hostGameObject.AddComponent<HostBehavior>();
             hostBehavior.Initialize(host);
             this.hosts.Add(hostGameObject);

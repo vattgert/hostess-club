@@ -2,17 +2,23 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class ShiftHostsUI : MonoBehaviour
 {
     // Prefab for a single hostess entry, assign in the Inspector.
-    public GameObject hostsUIPrefab;
+    public GameObject hostListItemPrefab;
 
     // The container (a UI panel) that has the Vertical Layout Group component.
-    public Transform hostessUIContainer;
+    private Transform hostUIContainer;
 
     // The list of hostesses to display.
     private List<GameObject> hosts;
+
+    private void Awake()
+    {
+        this.hostUIContainer = gameObject.transform;
+    }
 
     public void SetHostsList(List<GameObject> hosts)
     {
@@ -22,7 +28,7 @@ public class ShiftHostsUI : MonoBehaviour
     public void PopulateHostessUIList()
     {
         // Clear any existing UI entries (optional)
-        foreach (Transform child in hostessUIContainer)
+        foreach (Transform child in hostUIContainer)
         {
             Destroy(child.gameObject);
         }
@@ -34,8 +40,13 @@ public class ShiftHostsUI : MonoBehaviour
             if(hostBehavior != null)
             {
                 Host host = hostBehavior.GetHost();
-                GameObject uiEntry = Instantiate(hostsUIPrefab, hostessUIContainer);
+                GameObject uiEntry = Instantiate(hostListItemPrefab, hostUIContainer);
+                HostEntryUI hostEntry = uiEntry.GetComponent<HostEntryUI>();
                 // Assuming the prefab has a Text component to display the hostess's name.
+                if (hostEntry != null)
+                {
+                    hostEntry.SetHost(hostGo);
+                }
                 TextMeshProUGUI hostNameText = uiEntry.GetComponentInChildren<TextMeshProUGUI>();
                 if (hostNameText != null)
                 {

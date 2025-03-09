@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 
 public class TablesManager : MonoBehaviour
 {
     private HostAndCustomerSession[] tables;
-    private HostBehavior selectedHost;
     private CustomerManager customerManager;
+    private GameObject selectedHost;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -26,9 +27,21 @@ public class TablesManager : MonoBehaviour
         }
     }
 
-    public void HighlightAvailableTables(/*HostBehavior host*/)
+    public bool HasFreeTables()
     {
-        //this.selectedHost = host;
+        foreach (HostAndCustomerSession session in tables)
+        {
+            if (session.TableEmpty())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void HighlightTablesWaitingForHost(GameObject host)
+    {
+        this.selectedHost = host;
         foreach (var table in tables)
         {
             if (table.TableWaitsForHost())
@@ -37,5 +50,27 @@ public class TablesManager : MonoBehaviour
                 tableUI.SetHighlight(true);
             }
         }
+    }
+
+    public void HighlightedTableClicked(TableInteraction table)
+    {
+        Debug.Log("Table is highlight: " + table.isHighlighted);
+        Debug.Log("Selected is null: " + this.selectedHost == null);
+        if (table.isHighlighted && selectedHost != null)
+        {
+            HostAndCustomerSession session = table.gameObject.GetComponent<HostAndCustomerSession>();
+            session.AssignHost(selectedHost);
+        }
+        ClearHighlights();
+    }
+
+    public void ClearHighlights()
+    {
+        foreach (var table in tables)
+        {
+            TableInteraction tableUI = table.GetComponent<TableInteraction>();
+            tableUI.SetHighlight(false);
+        }
+        this.selectedHost = null;
     }
 }

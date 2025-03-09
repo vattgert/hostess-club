@@ -13,8 +13,7 @@ public class ShiftManager : MonoBehaviour
     private CustomerManager customerManager;
     private HostManager hostManager;
     private ShiftHostsUI shiftHostsUi;
-    [SerializeField]
-    private List<HostAndCustomerSession> hostsSessionsOnTables;
+    private HostAndCustomerSession[] hostsSessionsOnTables;
 
     private Stack<GameObject> customers;
 
@@ -23,7 +22,8 @@ public class ShiftManager : MonoBehaviour
         this.shiftTimer = gameObject.GetComponent<ShiftTimer>();
         this.customerManager = gameObject.GetComponent<CustomerManager>();
         this.hostManager = gameObject.GetComponent<HostManager>();
-        this.shiftHostsUi = gameObject.GetComponent<ShiftHostsUI>();
+        this.shiftHostsUi = FindFirstObjectByType<ShiftHostsUI>();
+        this.hostsSessionsOnTables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
         this.shiftActive.SetValue(false);
         this.shiftActive.Subscribe(this.rootContext, this.ChangeShiftState);
         shiftTimer.OnShiftTimerComplete += EndShift;
@@ -73,12 +73,5 @@ public class ShiftManager : MonoBehaviour
         this.customerManager.ClearShiftCustomers();
         this.EndShiftForHosts();
         Debug.Log("Shift ended");
-    }
-
-    public void AssignHostToCustomerByIndex(int index)
-    {
-        /*HostAndCustomerSession hostSession = this.hostsSessions[index];
-        GameObject customer = this.customers[index];
-        host.AssignCustomer(customer);*/
     }
 }

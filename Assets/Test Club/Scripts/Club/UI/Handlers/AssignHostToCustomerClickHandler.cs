@@ -16,6 +16,5 @@ public class AssignHostToCustomerClickHandler : MonoBehaviour
             Debug.LogError("Currently, host index must be 0 or 1");
             return;
         }
-        this.shiftManager.AssignHostToCustomerByIndex(index);
     }
 }
