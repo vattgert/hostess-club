@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -14,24 +15,33 @@ public class HostAndCustomerSession: MonoBehaviour
     private Coroutine serviceCoroutine;
 
     private GameObject assignedCustomer;
+    private Transform customerPlace;
     private CustomerBehavior customerBehaviour;
     private Customer customer;
 
     private GameObject assignedHost;
     private HostBehavior hostBehaviour;
+    private Transform hostPlace;
     private Host host;
-
-    // Positions
-    float radius = 1.5f; // distance from table center
-    float angleHostess = 0f; // in degrees
-    float angleCustomer = 180f; // in degrees
 
     private void Awake()
     {
-        this.table = this.gameObject.GetComponent<GameObject>();
+        this.table = gameObject;
         this.clubManager = ClubManager.GetInstance();
+        this.customerPlace = gameObject.transform.Find("Customer Place");
+        this.hostPlace = gameObject.transform.Find("Host Place");
     }
 
+    public bool TableEmpty()
+    {
+        return this.assignedCustomer == null && this.assignedHost == null;
+    }
+
+
+    public bool TableWaitsForHost()
+    {
+        return this.assignedCustomer != null && this.assignedHost == null;
+    }
     /// <summary>
     /// Start charging money if not already charging.
     /// </summary>
@@ -71,9 +81,7 @@ public class HostAndCustomerSession: MonoBehaviour
 
     private void PositionCustomer(GameObject customer)
     {
-        float radCustomer = angleCustomer * Mathf.Deg2Rad;
-        Vector2 customerPosition = new Vector2(Mathf.Cos(radCustomer), Mathf.Sin(radCustomer)) * radius;
-        customer.transform.localPosition = customerPosition;
+        customer.transform.position = this.customerPlace.position;
     }
 
     /// <summary>
@@ -115,13 +123,7 @@ public class HostAndCustomerSession: MonoBehaviour
 
     private void PositionHost(GameObject host)
     {
-        float radHost = angleHostess * Mathf.Deg2Rad;
-
-        // Calculate positions
-        Vector2 hostessPosition = new Vector2(Mathf.Cos(radHost), Mathf.Sin(radHost)) * radius;
-
-        // Set local positions (assuming the table is their parent)
-        host.transform.localPosition = hostessPosition;
+        host.transform.localPosition = this.hostPlace.position;
     }
 
     /// <summary>

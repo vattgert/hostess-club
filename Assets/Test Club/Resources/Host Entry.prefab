@@ -297,6 +297,7 @@ GameObject:
   - component: {fileID: 9116150050490071981}
   - component: {fileID: 6544227125355231863}
   - component: {fileID: -428966916405136097}
+  - component: {fileID: 5383758195886085355}
   m_Layer: 5
   m_Name: Host Entry
   m_TagString: Host List Entry
@@ -349,3 +350,15 @@ MonoBehaviour:
   selectCursor: {fileID: 0}
   defaultCursor: {fileID: 0}
   isHoveredImage: {fileID: 4300804305114179155}
+--- !u!114 &5383758195886085355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5174485940262979511}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2037d0788e0619443a1406eba76b4b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -12,6 +13,8 @@ public class CustomerManager : MonoBehaviour
     private Stack<GameObject> customers;
     private ShiftTimer shiftTimer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public event Action<GameObject> OnCustomerEntered;
     void Start()
     {
         this.shiftTimer = gameObject.GetComponent<ShiftTimer>();
@@ -60,6 +63,7 @@ public class CustomerManager : MonoBehaviour
         Vector3 worldPosition = club.CellToWorld(cellPosition);
         customer.transform.position = worldPosition;
         customer.transform.localScale = new Vector3(1, -1, 1);
+        this.OnCustomerEntered.Invoke(customer);
     }
 
     private void ServeCustomer(float timeLeft)
