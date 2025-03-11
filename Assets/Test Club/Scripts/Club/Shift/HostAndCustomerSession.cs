@@ -1,46 +1,54 @@
 using System;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class HostAndCustomerSession: MonoBehaviour
 {
     private bool shiftActive;
-    private bool assignedToCustomer;
 
     private ClubManager clubManager;
-
-    private GameObject table;
 
     private Coroutine serviceCoroutine;
 
     private GameObject assignedCustomer;
     private Transform customerPlace;
-    private CustomerBehavior customerBehaviour;
-    private Customer customer;
 
     private GameObject assignedHost;
-    private HostBehavior hostBehaviour;
     private Transform hostPlace;
-    private Host host;
+
+    public event Action<GameObject> OnSessionFinished;
 
     private void Awake()
     {
-        this.table = gameObject;
-        this.clubManager = ClubManager.GetInstance();
-        this.customerPlace = gameObject.transform.Find("Customer Place");
-        this.hostPlace = gameObject.transform.Find("Host Place");
+        clubManager = ClubManager.GetInstance();
+        customerPlace = gameObject.transform.Find(ComponentsNames.CustomerPlaceOnTable);
+        hostPlace = gameObject.transform.Find(ComponentsNames.HostPlaceOnTable);
     }
 
     public bool TableEmpty()
     {
-        return this.assignedCustomer == null && this.assignedHost == null;
+        return assignedCustomer == null && assignedHost == null;
     }
 
 
     public bool TableWaitsForHost()
     {
-        return this.assignedCustomer != null && this.assignedHost == null;
+        return assignedCustomer != null && assignedHost == null;
+    }
+
+    private bool HostAssigned()
+    {
+        return assignedHost != null;
+    }
+
+    private bool CustomerAssigned()
+    {
+        return assignedHost != null;
+    }
+
+    private bool SessionContinues()
+    {
+        return shiftActive && HostAssigned() && CustomerAssigned();
     }
     /// <summary>
     /// Start charging money if not already charging.
@@ -51,7 +59,7 @@ public class HostAndCustomerSession: MonoBehaviour
     /// </summary>
     public void SetShiftActive(bool active)
     {
-        this.shiftActive = active;
+        shiftActive = active;
     }
 
     /// <summary>
@@ -61,16 +69,14 @@ public class HostAndCustomerSession: MonoBehaviour
     {
         if (customer == null) return;
 
-        this.assignedCustomer = customer;
-        this.customerBehaviour = this.assignedCustomer.GetComponent<CustomerBehavior>();
-        this.customer = customerBehaviour.GetCustomer();
-        this.PositionCustomer(this.assignedCustomer);
+        assignedCustomer = customer;
+        PositionCustomer(assignedCustomer);
     }
 
     private void PositionCustomer(GameObject customer)
     {
-        customer.transform.SetParent(this.table.transform);
-        customer.transform.position = this.customerPlace.position;
+        customer.transform.SetParent(customerPlace.transform);
+        customer.transform.position = customerPlace.position;
     }
 
     /// <summary>
@@ -78,9 +84,9 @@ public class HostAndCustomerSession: MonoBehaviour
     /// </summary>
     public void UnassignCustomer()
     {
+        customerPlace.DetachChildren();
+        assignedCustomer.SetActive(false);
         assignedCustomer = null;
-        this.assignedToCustomer = false;
-
         // Stop charging if the hostess was in the middle of servicing
         if (serviceCoroutine != null)
         {
@@ -88,24 +94,19 @@ public class HostAndCustomerSession: MonoBehaviour
         }
     }
 
-    public void AssignHost(GameObject host)
+    public void AssignHost(GameObject hostGo)
     {
+        Host host = hostGo.GetComponent<HostBehavior>().GetHost();
         if (host == null) return;
-        if (this.assignedCustomer == null)
+        if (assignedCustomer == null)
         {
             Debug.LogError("Host cannot be assigned: there is no customer behind this table");
         }
 
-        this.assignedHost = host;
-        this.hostBehaviour = assignedHost.GetComponent<HostBehavior>();
-        this.host = hostBehaviour.GetHost();
-        this.assignedToCustomer = true;
-        this.PositionHost(this.assignedHost);
-
-        // If the shift is active, begin servicing immediately
-        Debug.Log("Shift is active: " + (this.shiftActive == true));
-        Debug.Log("Coroutine is null: " + (this.serviceCoroutine == null));
-        if (this.shiftActive == true && this.serviceCoroutine == null)
+        assignedHost = hostGo;
+        host = assignedHost.GetComponent<HostBehavior>().GetHost();
+        PositionHost(assignedHost);
+        if (shiftActive && serviceCoroutine == null)
         {
             StartServiceRoutine();
         }
@@ -113,8 +114,8 @@ public class HostAndCustomerSession: MonoBehaviour
 
     private void PositionHost(GameObject host)
     {
-        host.transform.SetParent(this.table.transform);
-        host.transform.position = this.hostPlace.position;
+        host.transform.SetParent(hostPlace.transform);
+        host.transform.position = hostPlace.position;
     }
 
     /// <summary>
@@ -122,8 +123,9 @@ public class HostAndCustomerSession: MonoBehaviour
     /// </summary>
     public void UnassignHost()
     {
-        this.assignedHost = null;
-
+        hostPlace.DetachChildren();
+        assignedHost.GetComponent<HostBehavior>().Deactivate();
+        assignedHost = null;
         // Here I must run waiting timer for customer
     }
 
@@ -138,6 +140,13 @@ public class HostAndCustomerSession: MonoBehaviour
         serviceCoroutine = null;
     }
 
+    private void FinishSession()
+    {
+        OnSessionFinished.Invoke(assignedHost);
+        UnassignCustomer();
+        UnassignHost();
+    }
+
     /// <summary>
     /// This coroutine does two things:
     /// 1) Waits for M seconds at a time, charging money each interval.
@@ -146,15 +155,15 @@ public class HostAndCustomerSession: MonoBehaviour
     private IEnumerator ServeCustomerRoutine()
     {
         float timeElapsed = 0f;
-
-        while (this.shiftActive && this.assignedToCustomer && this.assignedHost && timeElapsed < this.host.TimeWithCustomer)
+        Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
+        while (SessionContinues() && timeElapsed < host.TimeWithCustomer)
         {
             // Wait M seconds
-            yield return new WaitForSeconds(this.host.ChargeInterval);
-            timeElapsed += this.host.ChargeInterval;
+            yield return new WaitForSeconds(host.ChargeInterval);
+            timeElapsed += host.ChargeInterval;
 
             // Check if we became unassigned or the shift ended during the wait
-            if (!this.shiftActive || !this.assignedToCustomer)
+            if (!shiftActive || !HostAssigned())
             {
                 // End early if conditions are no longer met
                 yield break;
@@ -163,18 +172,18 @@ public class HostAndCustomerSession: MonoBehaviour
             // Charge
             if (clubManager != null)
             {
-                clubManager.AddIncome(this.host.ChargePerHour);
-                Debug.Log($"{name} charged {this.host.ChargePerHour}. Current balance: {clubManager.GetCurrentBalance()}");
+                clubManager.AddIncome(host.ChargePerHour);
+                Debug.Log($"{name} charged {host.ChargePerHour}. Current balance: {clubManager.GetCurrentBalance()}");
             }
         }
 
         // If we exit because we've hit totalServiceTime, we can automatically unassign the hostess if desired.
-        if (timeElapsed >= this.host.TimeWithCustomer)
+        if (timeElapsed >= host.TimeWithCustomer)
         {
-            Debug.Log($"{name} finished {this.host.TimeWithCustomer} seconds with the client.");
-            UnassignCustomer();
+            Debug.Log($"{name} finished {host.TimeWithCustomer} seconds with the client.");
+            FinishSession();
         }
 
-        this.serviceCoroutine = null;
+        serviceCoroutine = null;
     }
 }

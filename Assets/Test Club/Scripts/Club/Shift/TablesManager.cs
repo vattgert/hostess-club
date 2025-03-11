@@ -7,12 +7,25 @@ public class TablesManager : MonoBehaviour
     private CustomerManager customerManager;
     private GameObject selectedHost;
 
+    public event Action<GameObject> OnHostAssigned;
+    public event Action<GameObject> OnSessionFinished;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         this.tables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
+        foreach(HostAndCustomerSession table in this.tables)
+        {
+            table.OnSessionFinished += HandleOnSessionFinished;
+        }
         this.customerManager = gameObject.GetComponent<CustomerManager>();
         this.customerManager.OnCustomerEntered += this.AssignCustomerToFreeTable;
+    }
+
+    private void HandleOnSessionFinished(GameObject host)
+    {
+        Debug.Log("Hopefully, event triggered only once");
+        this.OnSessionFinished.Invoke(host);
     }
 
     public void AssignCustomerToFreeTable(GameObject customer)
@@ -60,6 +73,7 @@ public class TablesManager : MonoBehaviour
         {
             HostAndCustomerSession session = table.gameObject.GetComponent<HostAndCustomerSession>();
             session.AssignHost(selectedHost);
+            this.OnHostAssigned.Invoke(selectedHost);
         }
         ClearHighlights();
     }

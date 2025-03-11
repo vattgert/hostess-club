@@ -2,19 +2,28 @@ using UnityEngine;
 
 public class HostBehavior : MonoBehaviour
 {
+    SpriteRenderer spriteRenderer;
     Host host;
     public void Initialize(Host host)
     {
         this.host = host;
-        // Now you can use _customer data to set up visuals, UI, etc.
-        // For example:
-        // nameText.text = _customer.Name;
-        // ageText.text = _customer.Age.ToString();
     }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-       this.FormHostSprite(gameObject);
+        this.FormHostSprite(gameObject);
+        gameObject.SetActive(false);
+    }
+
+    public void Activate()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void Deactivate()
+    {
+        gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -40,5 +49,6 @@ public class HostBehavior : MonoBehaviour
         sr.sprite = triangleSprite;
         sr.sortingOrder = 1;
         sr.color = new Color32(255, 192, 203, 255);
+        this.spriteRenderer = sr;
     }
 }

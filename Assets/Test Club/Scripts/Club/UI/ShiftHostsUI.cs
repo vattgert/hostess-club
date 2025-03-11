@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public class ShiftHostsUI : MonoBehaviour
 {
+    private TablesManager tablesManager;
     // Prefab for a single hostess entry, assign in the Inspector.
     public GameObject hostListItemPrefab;
 
@@ -17,15 +16,52 @@ public class ShiftHostsUI : MonoBehaviour
 
     private void Awake()
     {
+        this.tablesManager = FindAnyObjectByType<TablesManager>();
         this.hostUIContainer = gameObject.transform;
+        this.tablesManager.OnHostAssigned += this.HandleOnHostAssigned;
+        this.tablesManager.OnSessionFinished += this.HandleOnSessionFinished;
     }
 
-    public void SetHostsList(List<GameObject> hosts)
+    public void SetHostsForShiftList(List<GameObject> hosts)
     {
         this.hosts = hosts;
+        this.PopulateHostUIList();
     }
 
-    public void PopulateHostessUIList()
+    private void CreateHostListItem(GameObject hostGo)
+    {
+        HostBehavior hostBehavior = hostGo.GetComponent<HostBehavior>();
+        if (hostBehavior != null)
+        {
+            Host host = hostBehavior.GetHost();
+            GameObject uiEntry = Instantiate(hostListItemPrefab, hostUIContainer);
+            HostEntryUI hostEntry = uiEntry.GetComponent<HostEntryUI>();
+            // Assuming the prefab has a Text component to display the hostess's name.
+            if (hostEntry != null)
+            {
+                hostEntry.SetHost(hostGo);
+            }
+            TextMeshProUGUI hostNameText = uiEntry.GetComponentInChildren<TextMeshProUGUI>();
+            if (hostNameText != null)
+            {
+                hostNameText.text = host.Name;
+            }
+        }
+        
+    }
+
+    private void HandleOnHostAssigned(GameObject host)
+    {
+        host.GetComponent<HostBehavior>().Activate();
+        this.RemoveHostFromUIList(host);
+    }
+
+    private void HandleOnSessionFinished(GameObject host)
+    {
+        this.AddHostToUIList(host);
+    }
+
+    private void PopulateHostUIList()
     {
         // Clear any existing UI entries (optional)
         foreach (Transform child in hostUIContainer)
@@ -34,24 +70,37 @@ public class ShiftHostsUI : MonoBehaviour
         }
 
         // Instantiate a UI entry for each hostess in the list.
-        foreach (GameObject hostGo in hosts)
+        foreach (GameObject hostGo in this.hosts)
         {
-            HostBehavior hostBehavior = hostGo.GetComponent<HostBehavior>();
-            if(hostBehavior != null)
+            this.CreateHostListItem(hostGo);
+        }
+    }
+
+    private void AddHostToUIList(GameObject hostGo)
+    {
+        if (!hosts.Contains(hostGo))
+        {
+            hosts.Add(hostGo);
+            Debug.Log("Add  host list item to UI");
+            this.CreateHostListItem(hostGo);
+        }
+    }
+
+    private void RemoveHostFromUIList(GameObject host)
+    {
+        if (this.hosts.Contains(host))
+        {
+            this.hosts.Remove(host);
+
+            // Find and destroy only the corresponding UI entry
+            foreach (Transform child in hostUIContainer)
             {
-                Host host = hostBehavior.GetHost();
-                GameObject uiEntry = Instantiate(hostListItemPrefab, hostUIContainer);
-                HostEntryUI hostEntry = uiEntry.GetComponent<HostEntryUI>();
-                // Assuming the prefab has a Text component to display the hostess's name.
-                if (hostEntry != null)
+                HostEntryUI hostEntry = child.GetComponent<HostEntryUI>();
+                if (hostEntry != null && hostEntry.GetHost() == host)
                 {
-                    hostEntry.SetHost(hostGo);
-                }
-                TextMeshProUGUI hostNameText = uiEntry.GetComponentInChildren<TextMeshProUGUI>();
-                if (hostNameText != null)
-                {
-                    Debug.Log("Host name " + host.Name);
-                    hostNameText.text = host.Name;
+                    Debug.Log("Destroy host list item from UI");
+                    Destroy(child.gameObject);
+                    break; // Exit loop after removing the first matching entry
                 }
             }
         }

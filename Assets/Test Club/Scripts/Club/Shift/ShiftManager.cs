@@ -63,8 +63,7 @@ public class ShiftManager : MonoBehaviour
         this.StartShiftForHosts();
         this.customerManager.GenerateCustomersPoolForShift();
         this.hostManager.GenerateHostsForShift();
-        this.shiftHostsUi.SetHostsList(this.hostManager.GetHosts());
-        this.shiftHostsUi.PopulateHostessUIList();
+        this.shiftHostsUi.SetHostsForShiftList(this.hostManager.GetHosts());
     }
 
     void EndShift()
