@@ -61,9 +61,9 @@ public class ShiftManager : MonoBehaviour
         Debug.Log("Shift started");
         customerManager.GenerateCustomersPoolForShift();
         shiftTimer.StartTimer();
-        hostManager.GenerateHostsForShift();
+        hostManager.GenerateShiftHosts();
         StartShiftForHosts();
-        shiftHostsUi.SetHostsForShiftList(hostManager.GetHosts());
+        shiftHostsUi.SetHostsForShiftList(hostManager.GetShiftHosts());
     }
 
     void EndShift()

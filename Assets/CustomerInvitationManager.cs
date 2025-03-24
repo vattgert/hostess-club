@@ -5,11 +5,12 @@ public class CustomerInvitationManager : MonoBehaviour
 {
     private int inviteInterval = 4;
     private float nextInviteTime = 0;
-    private bool tablesWereFull = false;
+    bool invitingPaused = false;
 
     private ShiftTimer shiftTimer;
     private TablesManager tablesManager;
     private CustomerManager customerManager;
+    private HostManager hostManager;
 
     public event Action<GameObject> OnCustomerInvited;
 
@@ -18,6 +19,7 @@ public class CustomerInvitationManager : MonoBehaviour
         shiftTimer = gameObject.GetComponent<ShiftTimer>();
         tablesManager = gameObject.GetComponent<TablesManager>();
         customerManager = gameObject.GetComponent<CustomerManager>();
+        hostManager = gameObject.GetComponent<HostManager>();
         shiftTimer.OnShiftTimerUpdate += ManageCustomerInvitation;
         float firstCustomerInviteTime = shiftTimer.ShitDuration() - inviteInterval;
         nextInviteTime = firstCustomerInviteTime;
@@ -34,29 +36,30 @@ public class CustomerInvitationManager : MonoBehaviour
     private void ResetInviteTimer(float timeLeft)
     {
         nextInviteTime = timeLeft - inviteInterval;
-        tablesWereFull = false;
+        invitingPaused = false;
     }
 
     private void ManageCustomerInvitation(float timeLeft)
     {
-        if (tablesManager.HasFreeTables())
+        if (tablesManager.HasFreeTables() && hostManager.HasAvailableHost())
         {
             // If tables are full - update next invite time, since when one of tables will be free
             // the next customer must not be invited immediately, but only after 'inviteInterval' seconds
-            if (tablesWereFull)
+            if (invitingPaused)
             {
                 ResetInviteTimer(timeLeft);
             }
             bool hasCustomers = customerManager.GetCustomers().Count > 0;
+            bool hasAvailableHost = hostManager.GetShiftHosts().Count > 0;
             bool timeToInvite = timeLeft <= nextInviteTime;
-            if (timeToInvite && hasCustomers)
+            if (timeToInvite && hasCustomers && hasAvailableHost)
             {
                 InviteCustomer();
                 nextInviteTime -= inviteInterval;
             }
         } else
         {
-            tablesWereFull = true;
+            invitingPaused = true;
         }
     }
 }

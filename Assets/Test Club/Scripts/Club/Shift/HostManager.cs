@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class HostManager : MonoBehaviour
@@ -7,7 +8,7 @@ public class HostManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        this.hosts = new List<GameObject>();
+        hosts = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -16,7 +17,7 @@ public class HostManager : MonoBehaviour
         
     }
 
-    public void GenerateHostsForShift()
+    public void GenerateShiftHosts()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -25,17 +26,22 @@ public class HostManager : MonoBehaviour
             hostGameObject.name = host.Name;
             HostBehavior hostBehavior = hostGameObject.AddComponent<HostBehavior>();
             hostBehavior.Initialize(host);
-            this.hosts.Add(hostGameObject);
+            hosts.Add(hostGameObject);
         }
     }
 
-    public List<GameObject> GetHosts()
+    public List<GameObject> GetShiftHosts()
     {
-        return this.hosts;
+        return hosts;
     }
 
-    public void ClearShiftHosts()
+    public bool HasAvailableHost()
     {
-        this.hosts = null;
+        return hosts.Count > 0;
+    }
+
+    public void RemoveHost(GameObject host)
+    {
+        hosts.Remove(host);
     }
 }
