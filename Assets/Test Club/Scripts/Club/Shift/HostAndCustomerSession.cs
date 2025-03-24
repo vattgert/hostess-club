@@ -5,10 +5,14 @@ using UnityEngine;
 public class HostAndCustomerSession: MonoBehaviour
 {
     private bool shiftActive;
+    private readonly float waitingForHostTime = 10f;
+    //private readonly float maxSessionTimeWithoutExtension = 90f; 
+    private readonly float defaultSessionTime = 40f;
 
     private ClubManager clubManager;
 
     private Coroutine serviceCoroutine;
+    private Coroutine waitingHostCoroutine;
 
     private GameObject assignedCustomer;
     private Transform customerPlace;
@@ -17,6 +21,7 @@ public class HostAndCustomerSession: MonoBehaviour
     private Transform hostPlace;
 
     public event Action<GameObject> OnSessionFinished;
+    public event Action OnHostLeftWithoutSession; 
 
     private void Awake()
     {
@@ -25,34 +30,47 @@ public class HostAndCustomerSession: MonoBehaviour
         hostPlace = gameObject.transform.Find(ComponentsNames.HostPlaceOnTable);
     }
 
+
+
+    /// <summary>
+    /// Check if a table is empty (no customer, no host).
+    /// </summary>
     public bool TableEmpty()
     {
         return assignedCustomer == null && assignedHost == null;
     }
 
-
+    /// <summary>
+    /// Check if a customer is waiting for host
+    /// </summary>
     public bool TableWaitsForHost()
     {
         return assignedCustomer != null && assignedHost == null;
     }
 
+    /// <summary>
+    /// Check if a host is assigned to the table
+    /// </summary>
     private bool HostAssigned()
     {
         return assignedHost != null;
     }
 
+    /// <summary>
+    /// Check if a customer is assigned to the table
+    /// </summary>
     private bool CustomerAssigned()
     {
         return assignedHost != null;
     }
 
+    /// <summary>
+    /// Check if the session is still active
+    /// </summary>
     private bool SessionContinues()
     {
         return shiftActive && HostAssigned() && CustomerAssigned();
     }
-    /// <summary>
-    /// Start charging money if not already charging.
-    /// </summary>
     /// 
     /// <summary>
     /// Called by the ShiftManager when the shift starts or ends globally.
@@ -71,6 +89,10 @@ public class HostAndCustomerSession: MonoBehaviour
 
         assignedCustomer = customer;
         PositionCustomer(assignedCustomer);
+        if(waitingHostCoroutine == null)
+        {
+            waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
+        }
     }
 
     private void PositionCustomer(GameObject customer)
@@ -147,16 +169,43 @@ public class HostAndCustomerSession: MonoBehaviour
         UnassignHost();
     }
 
+    private IEnumerator WaitForHostToBeAssignedRoutine()
+    {
+        Debug.Log("Start waiting for a host");
+        float startTime = Time.time;
+
+        // Loop until the host is assigned or the waiting time is exceeded.
+        while (TableWaitsForHost() && (Time.time - startTime) < waitingForHostTime)
+        {
+            if (assignedHost != null)
+            {
+                Debug.Log("Customer has waited for a host");
+                // Host assigned; exit the coroutine.
+                yield break;
+            }
+            yield return null;
+        }
+
+        // If we've exceeded the waiting time, unassign the customer.
+        if ((Time.time - startTime) >= waitingForHostTime)
+        {
+            Debug.Log("Customer leaves since host was not assigned");
+            UnassignCustomer();
+            OnHostLeftWithoutSession?.Invoke();
+        }
+
+        waitingHostCoroutine = null;
+    }
+
     /// <summary>
-    /// This coroutine does two things:
-    /// 1) Waits for M seconds at a time, charging money each interval.
-    /// 2) Continues up to a total of N seconds, or until the hostess is unassigned or the shift ends.
+    /// Coroutine to track time during the session and charges money from customer once per host.ChargeInterval
     /// </summary>
     private IEnumerator ServeCustomerRoutine()
     {
         float timeElapsed = 0f;
         Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
-        while (SessionContinues() && timeElapsed < host.TimeWithCustomer)
+        CustomerBehavior customer = assignedCustomer.GetComponent<CustomerBehavior>();
+        while (SessionContinues() && timeElapsed < defaultSessionTime)
         {
             // Wait M seconds
             yield return new WaitForSeconds(host.ChargeInterval);
@@ -170,17 +219,23 @@ public class HostAndCustomerSession: MonoBehaviour
             }
 
             // Charge
-            if (clubManager != null)
+            if (customer.NextChargeOverflow())
             {
-                clubManager.AddIncome(host.ChargePerHour);
-                Debug.Log($"{name} charged {host.ChargePerHour}. Current balance: {clubManager.GetCurrentBalance()}");
+                Debug.Log($"Session ended due to customer balance overflow. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.GetCustomer().Budget}");
+                FinishSession();
+            } else
+            {
+                Debug.Log("Charging customer");
+                int charged = customer.Charge();
+                clubManager.AddIncome(charged);
+                Debug.Log($"{name} charged {charged}. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.GetCustomer().Budget}");
             }
         }
 
         // If we exit because we've hit totalServiceTime, we can automatically unassign the hostess if desired.
-        if (timeElapsed >= host.TimeWithCustomer)
+        if (timeElapsed >= defaultSessionTime)
         {
-            Debug.Log($"{name} finished {host.TimeWithCustomer} seconds with the client.");
+            Debug.Log($"Session ended due to time. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.GetCustomer().Budget}");
             FinishSession();
         }
 

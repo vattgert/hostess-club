@@ -23,6 +23,33 @@ public class CustomerBehavior : MonoBehaviour
         
     }
 
+    public void CreateCustomerSprite()
+    {
+        GameObject customer = gameObject;
+        Sprite triangleSprite = Resources.Load<Sprite>("Triangle");
+        if (triangleSprite == null)
+        {
+            Debug.LogError("Failed to load Triangle sprite!");
+            return;
+        }
+        SpriteRenderer sr = customer.AddComponent<SpriteRenderer>();
+        sr.sprite = triangleSprite;
+        sr.sortingOrder = 1;
+        sr.color = new Color32(1, 125, 243, 255);
+        sr.transform.rotation = Quaternion.Euler(0, 0, 180);
+    }
+
+    public bool NextChargeOverflow()
+    {
+        return (customer.Budget - customer.ChargeAmount) <= 0;
+    }
+
+    public int Charge()
+    {
+        customer.Budget = customer.Budget - customer.ChargeAmount;
+        return customer.ChargeAmount;
+    }
+
     public Customer GetCustomer()
     {
         return this.customer;

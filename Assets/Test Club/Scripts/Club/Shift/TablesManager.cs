@@ -5,6 +5,7 @@ public class TablesManager : MonoBehaviour
 {
     private HostAndCustomerSession[] tables;
     private CustomerManager customerManager;
+    private CustomerInvitationManager customerInvitationManager;
     private GameObject selectedHost;
 
     public event Action<GameObject> OnHostAssigned;
@@ -19,7 +20,8 @@ public class TablesManager : MonoBehaviour
             table.OnSessionFinished += HandleOnSessionFinished;
         }
         this.customerManager = gameObject.GetComponent<CustomerManager>();
-        this.customerManager.OnCustomerEntered += this.AssignCustomerToFreeTable;
+        this.customerInvitationManager = gameObject.GetComponent<CustomerInvitationManager>();
+        this.customerInvitationManager.OnCustomerInvited += this.AssignCustomerToFreeTable;
     }
 
     private void HandleOnSessionFinished(GameObject host)

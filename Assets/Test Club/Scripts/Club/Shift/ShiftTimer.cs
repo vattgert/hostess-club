@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class ShiftTimer : MonoBehaviour
 {
-    [SerializeField]
     /// <summary>
     /// Shift length in seconds.
     /// </summary>
-    private float shiftDuration = 180f;
+    private readonly float shiftDuration = 300f;
     /// <summary>
     /// Time left until the end of the shift.
     /// </summary>
@@ -17,10 +16,6 @@ public class ShiftTimer : MonoBehaviour
     /// The coroutine, which manages the time for a shift.
     /// </summary>
     private Coroutine shiftTimerCoroutine;
-    /// <summary>
-    /// This event fires when the timer starts.
-    /// </summary>
-    public event Action OnShiftTimerStart;
     /// <summary>
     /// This event fires when the timer completes (the shift should end).
     /// </summary>
@@ -32,12 +27,12 @@ public class ShiftTimer : MonoBehaviour
 
     public Coroutine GetTimer()
     {
-        return this.shiftTimerCoroutine;
+        return shiftTimerCoroutine;
     }
 
     public float ShitDuration()
     {
-        return this.shiftDuration;
+        return shiftDuration;
     }
 
     private IEnumerator TimerRoutineWithUpdate()
@@ -48,14 +43,14 @@ public class ShiftTimer : MonoBehaviour
         {
             TimeLeft -= Time.deltaTime;
 
-            OnShiftTimerUpdate?.Invoke(TimeLeft);
+            OnShiftTimerUpdate.Invoke(TimeLeft);
             yield return null;
         }
 
         TimeLeft = 0f;
-        OnShiftTimerUpdate?.Invoke(TimeLeft);
-        this.StopTimer();
-        OnShiftTimerComplete?.Invoke();
+        OnShiftTimerUpdate.Invoke(TimeLeft);
+        StopTimer();
+        OnShiftTimerComplete.Invoke();
     }
 
     /// <summary>
@@ -66,8 +61,7 @@ public class ShiftTimer : MonoBehaviour
         if (shiftTimerCoroutine == null)
         {
             Debug.Log("Shift timer starting");
-            this.shiftTimerCoroutine = StartCoroutine(TimerRoutineWithUpdate());
-            OnShiftTimerStart?.Invoke();
+            shiftTimerCoroutine = StartCoroutine(TimerRoutineWithUpdate());
         }
     }
 
@@ -78,8 +72,8 @@ public class ShiftTimer : MonoBehaviour
     {
         if (shiftTimerCoroutine != null)
         {
-            StopCoroutine(this.shiftTimerCoroutine);
-            this.shiftTimerCoroutine = null;
+            StopCoroutine(shiftTimerCoroutine);
+            shiftTimerCoroutine = null;
             Debug.Log("Shift timer ended");
         }
     }

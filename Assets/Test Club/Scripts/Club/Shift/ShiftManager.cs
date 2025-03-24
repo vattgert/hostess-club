@@ -19,19 +19,19 @@ public class ShiftManager : MonoBehaviour
 
     void Start()
     {
-        this.shiftTimer = gameObject.GetComponent<ShiftTimer>();
-        this.customerManager = gameObject.GetComponent<CustomerManager>();
-        this.hostManager = gameObject.GetComponent<HostManager>();
-        this.shiftHostsUi = FindFirstObjectByType<ShiftHostsUI>();
-        this.hostsSessionsOnTables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
-        this.shiftActive.SetValue(false);
-        this.shiftActive.Subscribe(this.rootContext, this.ChangeShiftState);
+        shiftTimer = gameObject.GetComponent<ShiftTimer>();
+        customerManager = gameObject.GetComponent<CustomerManager>();
+        hostManager = gameObject.GetComponent<HostManager>();
+        shiftHostsUi = FindFirstObjectByType<ShiftHostsUI>();
+        hostsSessionsOnTables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
+        shiftActive.SetValue(false);
+        shiftActive.Subscribe(rootContext, ChangeShiftState);
         shiftTimer.OnShiftTimerComplete += EndShift;
     }
 
     private void StartShiftForHosts()
     {
-        foreach (HostAndCustomerSession host in this.hostsSessionsOnTables)
+        foreach (HostAndCustomerSession host in hostsSessionsOnTables)
         {
             host.SetShiftActive(true);
         }
@@ -39,7 +39,7 @@ public class ShiftManager : MonoBehaviour
 
     private void EndShiftForHosts()
     {
-        foreach (HostAndCustomerSession host in this.hostsSessionsOnTables)
+        foreach (HostAndCustomerSession host in hostsSessionsOnTables)
         {
             host.SetShiftActive(false);
         }
@@ -49,28 +49,28 @@ public class ShiftManager : MonoBehaviour
     {
         if(shiftActive)
         {
-            this.StartShift();
+            StartShift();
         } else
         {
-            this.EndShift();
+            EndShift();
         }
     }
 
     void StartShift()
     {
         Debug.Log("Shift started");
-        this.shiftTimer.StartTimer();
-        this.StartShiftForHosts();
-        this.customerManager.GenerateCustomersPoolForShift();
-        this.hostManager.GenerateHostsForShift();
-        this.shiftHostsUi.SetHostsForShiftList(this.hostManager.GetHosts());
+        customerManager.GenerateCustomersPoolForShift();
+        shiftTimer.StartTimer();
+        hostManager.GenerateHostsForShift();
+        StartShiftForHosts();
+        shiftHostsUi.SetHostsForShiftList(hostManager.GetHosts());
     }
 
     void EndShift()
     {
-        this.shiftTimer.StopTimer();
-        this.customerManager.ClearShiftCustomers();
-        this.EndShiftForHosts();
+        shiftTimer.StopTimer();
+        customerManager.ClearShiftCustomers();
+        EndShiftForHosts();
         Debug.Log("Shift ended");
     }
 }

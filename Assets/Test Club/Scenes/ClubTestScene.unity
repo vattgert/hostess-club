@@ -575,6 +575,7 @@ GameObject:
   - component: {fileID: 905626268}
   - component: {fileID: 905626262}
   - component: {fileID: 905626264}
+  - component: {fileID: 905626269}
   m_Layer: 0
   m_Name: ClubManager
   m_TagString: Untagged
@@ -646,7 +647,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff73440d3ece43d4593d78192954b844, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shiftDuration: 180
 --- !u!114 &905626264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,6 +694,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 619a637784754be4a9faf0a82257f3a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &905626269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905626258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c12c266790587241a24da81f487a0c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &910390721
@@ -1280,7 +1292,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1240150180}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4402,11 +4414,11 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1240150183}
   - {fileID: 1459229362}
+  - {fileID: 1099537211}
   - {fileID: 519420032}
   - {fileID: 619394802}
-  - {fileID: 1099537211}
   - {fileID: 905626261}
   - {fileID: 48243225}
-  - {fileID: 1240150183}
   - {fileID: 1932221698}

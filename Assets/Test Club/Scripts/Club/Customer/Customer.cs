@@ -14,17 +14,27 @@ public class Customer
 {
     public CustomerType Type { get; set; }
     public int Budget { get; set; }
+    public int ChargeAmount { get; private set; }
 
     private static Dictionary<CustomerType, (int, int)> BudgetRange = new Dictionary<CustomerType, (int, int)>()
     {
-        { CustomerType.Poor, (100,450) },
+        { CustomerType.Poor, (1500,1500) },
         { CustomerType.Average, (500, 950) },
         { CustomerType.Rich, (1000, 1500) },
         { CustomerType.Celebrity, (1800, 2300) },
         { CustomerType.Tycoon, (2500, 5000) }
     };
 
-    protected static int GenerateBudgedByType(CustomerType type)
+    private static Dictionary<CustomerType, int> ChargeAmountByType = new Dictionary<CustomerType, int>()
+    {
+        { CustomerType.Poor, 100 },
+        { CustomerType.Average, 500 },
+        { CustomerType.Rich, 1000 },
+        { CustomerType.Celebrity, 1800 },
+        { CustomerType.Tycoon, 2500 }
+    };
+
+    protected static int GenerateBudgetByType(CustomerType type)
     {
         int step = 10;
         (int LowBudget, int HighBudget) budgetRange = Customer.BudgetRange[type];
@@ -47,6 +57,7 @@ public class Customer
     public Customer(CustomerType type)
     {
         this.Type = type;
-        this.Budget = Customer.GenerateBudgedByType(type);
+        this.Budget = Customer.GenerateBudgetByType(type);
+        this.ChargeAmount = Customer.ChargeAmountByType[type];
     }
 }
