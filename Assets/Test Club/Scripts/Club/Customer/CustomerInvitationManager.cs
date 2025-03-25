@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CustomerInvitationManager : MonoBehaviour
 {
-    private int inviteInterval = 4;
+    private int inviteInterval = 6;
     private float nextInviteTime = 0;
     bool invitingPaused = false;
 
@@ -29,7 +29,7 @@ public class CustomerInvitationManager : MonoBehaviour
     {
         GameObject customer = customerManager.GetCustomers().Pop();
         CustomerBehavior customerBehaviour = customer.GetComponent<CustomerBehavior>();
-        customerBehaviour.CreateCustomerSprite();
+        customerBehaviour.CreateCustomer();
         OnCustomerInvited?.Invoke(customer);
     }
 

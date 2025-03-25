@@ -21,7 +21,6 @@ public class HostAndCustomerSession: MonoBehaviour
     private Transform hostPlace;
 
     public event Action<GameObject> OnSessionFinished;
-    public event Action OnHostLeftWithoutSession; 
 
     private void Awake()
     {
@@ -91,6 +90,7 @@ public class HostAndCustomerSession: MonoBehaviour
         PositionCustomer(assignedCustomer);
         if(waitingHostCoroutine == null)
         {
+            customer.GetComponent<CustomerBehavior>().StartWaiting();
             waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
         }
     }
@@ -107,6 +107,7 @@ public class HostAndCustomerSession: MonoBehaviour
     public void UnassignCustomer()
     {
         customerPlace.DetachChildren();
+        assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
         assignedCustomer.SetActive(false);
         assignedCustomer = null;
         // Stop charging if the hostess was in the middle of servicing
@@ -128,6 +129,7 @@ public class HostAndCustomerSession: MonoBehaviour
         assignedHost = hostGo;
         host = assignedHost.GetComponent<HostBehavior>().GetHost();
         PositionHost(assignedHost);
+        assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
         if (shiftActive && serviceCoroutine == null)
         {
             StartServiceRoutine();
@@ -183,6 +185,9 @@ public class HostAndCustomerSession: MonoBehaviour
                 // Host assigned; exit the coroutine.
                 yield break;
             }
+            float timeRemaining = Mathf.Max(0, waitingForHostTime - (Time.time - startTime));
+            int displayTime = Mathf.CeilToInt(timeRemaining);
+            assignedCustomer.GetComponent<CustomerBehavior>().UpdateWaitingCountdown(displayTime);
             yield return null;
         }
 
@@ -191,7 +196,6 @@ public class HostAndCustomerSession: MonoBehaviour
         {
             Debug.Log("Customer leaves since host was not assigned");
             UnassignCustomer();
-            OnHostLeftWithoutSession?.Invoke();
         }
 
         waitingHostCoroutine = null;

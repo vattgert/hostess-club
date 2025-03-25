@@ -1,8 +1,10 @@
+using TMPro;
 using UnityEngine;
 
 public class CustomerBehavior : MonoBehaviour
 {
     private Customer customer;
+    private GameObject countdownCanvas;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void Initialize(Customer customer)
     {
@@ -23,7 +25,21 @@ public class CustomerBehavior : MonoBehaviour
         
     }
 
-    public void CreateCustomerSprite()
+    private void SetWaitingCountdownCanvas(Transform parent)
+    {
+        // Load countdown prefab
+        GameObject canvasInstance = Instantiate(Resources.Load<GameObject>(ComponentsNames.CustomerWaitingCountdown));
+        canvasInstance.SetActive(false);
+        canvasInstance.transform.SetParent(parent);
+
+        // Position it above the triangle (adjust height as needed)
+        canvasInstance.transform.localPosition = new Vector3(0, -0.5f, 0);
+        canvasInstance.transform.localScale = Vector3.one * 0.01f; // scale down if necessary
+
+        countdownCanvas = canvasInstance;
+    }
+
+    private void CreateCustomerSprite()
     {
         GameObject customer = gameObject;
         Sprite triangleSprite = Resources.Load<Sprite>("Triangle");
@@ -37,6 +53,41 @@ public class CustomerBehavior : MonoBehaviour
         sr.sortingOrder = 1;
         sr.color = new Color32(1, 125, 243, 255);
         sr.transform.rotation = Quaternion.Euler(0, 0, 180);
+    }
+
+    public void CreateCustomer()
+    {
+        CreateCustomerSprite();
+        SetWaitingCountdownCanvas(gameObject.transform);
+    }
+
+    public void StartWaiting()
+    {
+        if(countdownCanvas != null)
+        {
+            countdownCanvas.SetActive(true);
+        }
+    }
+
+    public void UpdateWaitingCountdown(float time)
+    {
+        if (countdownCanvas != null && countdownCanvas.activeSelf == true)
+        {
+            // (Optional) store reference to countdown text for future updates
+            TextMeshProUGUI text = countdownCanvas.GetComponentInChildren<TextMeshProUGUI>();
+            if (text != null)
+            {
+                text.text = time.ToString(); // or whatever your logic needs
+            }
+        }
+    }
+
+    public void StopWaiting()
+    {
+        if (countdownCanvas != null)
+        {
+            countdownCanvas.SetActive(false);
+        }
     }
 
     public bool NextChargeOverflow()
