@@ -9,6 +9,8 @@ public class HostAndCustomerSession: MonoBehaviour
     //private readonly float maxSessionTimeWithoutExtension = 90f; 
     private readonly float defaultSessionTime = 40f;
 
+    private ShiftData shiftData;
+
     private ClubManager clubManager;
 
     private Coroutine serviceCoroutine;
@@ -27,6 +29,11 @@ public class HostAndCustomerSession: MonoBehaviour
         clubManager = ClubManager.GetInstance();
         customerPlace = gameObject.transform.Find(ComponentsNames.CustomerPlaceOnTable);
         hostPlace = gameObject.transform.Find(ComponentsNames.HostPlaceOnTable);
+    }
+
+    void Start()
+    {
+        shiftData = FindFirstObjectByType<ShiftManager>().GetShiftData();
     }
 
 
@@ -167,6 +174,7 @@ public class HostAndCustomerSession: MonoBehaviour
     private void FinishSession()
     {
         OnSessionFinished.Invoke(assignedHost);
+        shiftData.AddServedCustomer();
         UnassignCustomer();
         UnassignHost();
     }
@@ -225,14 +233,14 @@ public class HostAndCustomerSession: MonoBehaviour
             // Charge
             if (customer.NextChargeOverflow())
             {
-                Debug.Log($"Session ended due to customer balance overflow. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.GetCustomer().Budget}");
+                Debug.Log($"Session ended due to customer balance overflow. \n{name} finished {timeElapsed} seconds with the client. \nCustomer balance: ${customer.GetCustomer().Budget}");
                 FinishSession();
             } else
             {
                 Debug.Log("Charging customer");
                 int charged = customer.Charge();
-                clubManager.AddIncome(charged);
-                Debug.Log($"{name} charged {charged}. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.GetCustomer().Budget}");
+                shiftData.AddEarning(host.Name, charged);
+                Debug.Log($"{name} charged {charged}. \nCustomer balance: ${customer.GetCustomer().Budget}");
             }
         }
 

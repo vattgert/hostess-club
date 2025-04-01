@@ -17,7 +17,7 @@ public class HostEntryHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     private void Awake()
     {
-        this.isHoveredImage.gameObject.SetActive(false);
+        isHoveredImage.gameObject.SetActive(false);
     }
 
     // When the pointer enters the HostEntry area.
@@ -27,10 +27,9 @@ public class HostEntryHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         //Cursor.SetCursor(selectCursor, Vector2.zero, CursorMode.Auto);
 
         // Change the border color to highlight it.
-        if (this.isHoveredImage != null)
+        if (isHoveredImage != null)
         {
-            this.isHoveredImage.gameObject.SetActive(true);
-            Debug.Log("Outline effect color set to highlight.");
+            isHoveredImage.gameObject.SetActive(true);
         }
     }
 
@@ -41,6 +40,6 @@ public class HostEntryHover : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         //Cursor.SetCursor(defaultCursor, Vector2.zero, CursorMode.Auto);
 
         // Reset the border color.
-        this.isHoveredImage.gameObject.SetActive(false);
+        isHoveredImage.gameObject.SetActive(false);
     }
 }

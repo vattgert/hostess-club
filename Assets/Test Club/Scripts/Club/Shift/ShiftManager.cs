@@ -1,6 +1,5 @@
 using GamesCore.ObservableSubjects;
-using NUnit.Framework;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,20 +8,22 @@ public class ShiftManager : MonoBehaviour
     [SerializeField]
     private RootObservableContext rootContext;
     private ObservableSubject<bool> shiftActive = new ObservableSubject<bool>();
+    private ShiftData shiftData;
+
     private ShiftTimer shiftTimer;
     private CustomerManager customerManager;
     private HostManager hostManager;
-    private ShiftHostsUI shiftHostsUi;
     private HostAndCustomerSession[] hostsSessionsOnTables;
 
-    private Stack<GameObject> customers;
+    public event Action<List<GameObject>> OnShiftStarted;
+    public event Action<ShiftData> OnShiftFinished;
 
-    void Start()
+    private void Awake()
     {
+        shiftData = new ShiftData();
         shiftTimer = gameObject.GetComponent<ShiftTimer>();
         customerManager = gameObject.GetComponent<CustomerManager>();
         hostManager = gameObject.GetComponent<HostManager>();
-        shiftHostsUi = FindFirstObjectByType<ShiftHostsUI>();
         hostsSessionsOnTables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
         shiftActive.SetValue(false);
         shiftActive.Subscribe(rootContext, ChangeShiftState);
@@ -45,6 +46,11 @@ public class ShiftManager : MonoBehaviour
         }
     }
 
+    public ShiftData GetShiftData()
+    {
+        return shiftData;
+    }
+
     public void ChangeShiftState(bool shiftActive)
     {
         if(shiftActive)
@@ -59,11 +65,12 @@ public class ShiftManager : MonoBehaviour
     void StartShift()
     {
         Debug.Log("Shift started");
+        shiftData.Clear();
         customerManager.GenerateCustomersPoolForShift();
-        shiftTimer.StartTimer();
         hostManager.GenerateShiftHosts();
+        shiftTimer.StartTimer();
         StartShiftForHosts();
-        shiftHostsUi.SetHostsForShiftList(hostManager.GetShiftHosts());
+        OnShiftStarted?.Invoke(hostManager.GetShiftHosts());
     }
 
     void EndShift()
@@ -71,6 +78,7 @@ public class ShiftManager : MonoBehaviour
         shiftTimer.StopTimer();
         customerManager.ClearShiftCustomers();
         EndShiftForHosts();
+        OnShiftFinished?.Invoke(shiftData);
         Debug.Log("Shift ended");
     }
 }
