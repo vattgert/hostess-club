@@ -5,10 +5,13 @@ using UnityEngine.UI;
 public class HostEntryClick : MonoBehaviour, IPointerClickHandler
 {
     TablesManager tablesManager;
+    ShiftHostsUI shiftHostsUI;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        this.tablesManager = FindFirstObjectByType<TablesManager>();
+        tablesManager = FindFirstObjectByType<TablesManager>();
+        shiftHostsUI = GetComponentInParent<ShiftHostsUI>();
     }
 
     // Update is called once per frame
@@ -23,9 +26,17 @@ public class HostEntryClick : MonoBehaviour, IPointerClickHandler
         if(hostUI != null)
         {
             GameObject host = hostUI.GetHost();
-            // When clicked, tell the TableManager to highlight available tables using this host.
-            this.tablesManager.HighlightTablesWaitingForHost(host);
+            GameObject selectedTable = tablesManager.SelectedTable();
+            if (selectedTable != null)
+            {
+                HostAndCustomerSession tableSession = selectedTable.GetComponent<HostAndCustomerSession>();
+                tablesManager.SwapHostsBetweenSessionAndListAndClear(host, tableSession);
+            }
+            else
+            {
+                shiftHostsUI.SelectHost(host);
+                tablesManager.HighlightWaitingAndActiveTables();
+            } 
         }
-        
     }
 }

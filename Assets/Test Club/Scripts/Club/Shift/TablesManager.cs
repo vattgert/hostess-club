@@ -1,15 +1,12 @@
-using System;
 using UnityEngine;
 
 public class TablesManager : MonoBehaviour
 {
+    [SerializeField]
+    private ShiftHostsUI shiftHostsUI;
     private HostAndCustomerSession[] tables;
-    private HostManager hostManager;
     private CustomerInvitationManager customerInvitationManager;
-    private GameObject selectedHost;
-
-    public event Action<GameObject> OnHostAssigned;
-    public event Action<GameObject> OnSessionFinished;
+    private GameObject selectedTable;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -17,17 +14,26 @@ public class TablesManager : MonoBehaviour
         tables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
         foreach(HostAndCustomerSession table in tables)
         {
-            table.OnSessionFinished += HandleOnSessionFinished;
+            table.OnSessionFinished += shiftHostsUI.AddHostToList;
+            table.OnHostAssigned += shiftHostsUI.RemoveHostFromList;
         }
-        hostManager = gameObject.GetComponent<HostManager>();
         customerInvitationManager = gameObject.GetComponent<CustomerInvitationManager>();
         customerInvitationManager.OnCustomerInvited += AssignCustomerToFreeTable;
     }
 
-    private void HandleOnSessionFinished(GameObject host)
+    public GameObject SelectedTable()
     {
-        Debug.Log("Hopefully, event triggered only once");
-        OnSessionFinished.Invoke(host);
+        return selectedTable;
+    }
+
+    public void SelectTable(GameObject table)
+    {
+        selectedTable = table;
+    }
+
+    public void ClearSelected()
+    {
+        selectedTable = null;
     }
 
     public void AssignCustomerToFreeTable(GameObject customer)
@@ -54,40 +60,117 @@ public class TablesManager : MonoBehaviour
         return false;
     }
 
-    public void HighlightTablesWaitingForHost(GameObject host)
+    public void HighlightTablesWaitingForHost()
     {
-        selectedHost = host;
         foreach (var table in tables)
         {
             if (table.TableWaitsForHost())
             {
-                TableInteraction tableUI = table.GetComponent<TableInteraction>();
-                tableUI.SetHighlight(true);
+                TablePanelUI tableUI = table.GetComponentInChildren<TablePanelUI>();
+                tableUI.Highlight(true);
             }
         }
     }
 
-    public void HighlightedTableClicked(TableInteraction table)
+    public void HighlightWaitingAndActiveTables()
     {
-        Debug.Log("Table is highlight: " + table.isHighlighted);
-        Debug.Log("Selected is null: " + selectedHost == null);
-        if (table.isHighlighted && selectedHost != null)
+        foreach (var table in tables)
         {
-            HostAndCustomerSession session = table.gameObject.GetComponent<HostAndCustomerSession>();
-            session.AssignHost(selectedHost);
-            OnHostAssigned.Invoke(selectedHost);
-            Debug.Log("Host list count: " + hostManager.GetShiftHosts().Count);
+            if (table.TableWaitsForHost() || table.SessionActive())
+            {
+                TablePanelUI tableUI = table.GetComponentInChildren<TablePanelUI>();
+                tableUI.Highlight(true);
+            }
+        }
+    }
+
+    public void HightlightActiveTables(GameObject host)
+    {
+        foreach (var table in tables)
+        {
+            if (table.TableWaitsForHost() || table.SessionActive())
+            {
+                TablePanelUI tableUI = table.GetComponentInChildren<TablePanelUI>();
+                tableUI.Highlight(true);
+            }
+        }
+    }
+
+    public void TableClicked(HostAndCustomerSession session)
+    {
+        if (session.SessionActive())
+        {
+            SelectTable(session.gameObject);
+            HightlightActiveTables(session.GetHost());
+        }
+    }
+
+    public void HighlightedTableClicked(HostAndCustomerSession session)
+    {
+        GameObject selectedHost = shiftHostsUI.SelectedHost();
+        bool hostFromListAssignedToTable = selectedHost != null && selectedTable == null;
+        bool hostFromTableAssignedToTable = selectedHost == null && selectedTable != null;
+
+        if (hostFromListAssignedToTable)
+        {
+            if (session.SessionActive())
+            {
+                SwapHostsBetweenSessionAndList(selectedHost, session);
+            } else
+            {
+                AssignHostToSession(session);
+            }
+        } 
+        else if (hostFromTableAssignedToTable)
+        {   
+            SwapHostsBetweenSessions(session);
         }
         ClearHighlights();
+        ClearSelections();
     }
 
     public void ClearHighlights()
     {
         foreach (var table in tables)
         {
-            TableInteraction tableUI = table.GetComponent<TableInteraction>();
-            tableUI.SetHighlight(false);
+            TablePanelUI tableUI = table.GetComponentInChildren<TablePanelUI>();
+            tableUI.Highlight(false);
         }
-        selectedHost = null;
+    }
+
+    private void ClearSelections()
+    {
+        ClearSelected();
+        shiftHostsUI.ClearSelection();
+    }
+
+    private void AssignHostToSession(HostAndCustomerSession session)
+    {
+        session.AssignHost(shiftHostsUI.SelectedHost());
+    }
+
+    private void SwapHostsBetweenSessions(HostAndCustomerSession target)
+    {
+        Debug.Log("Swapping hosts between tables");
+        HostAndCustomerSession source = selectedTable.GetComponent<HostAndCustomerSession>();
+        GameObject sourceHost = source.UnassignHost();
+        GameObject targetHost = target.UnassignHost();
+        target.AssignHost(sourceHost);
+        source.AssignHost(targetHost);
+    }
+
+    private void SwapHostsBetweenSessionAndList(GameObject newHost, HostAndCustomerSession session)
+    {
+        Debug.Log("Swapping hosts between table and host list");
+        GameObject hostFromSession = session.UnassignHost();
+        session.AssignHost(newHost);
+        shiftHostsUI.AddHostToList(hostFromSession);
+    }
+
+    public void SwapHostsBetweenSessionAndListAndClear(GameObject newHost, HostAndCustomerSession session)
+    {
+        SwapHostsBetweenSessionAndList(newHost, session);
+        ClearHighlights();
+        ClearSelections();
     }
 }

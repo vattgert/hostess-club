@@ -4,28 +4,20 @@ using UnityEngine;
 
 public class ShiftHostsUI : MonoBehaviour
 {
-    private TablesManager tablesManager;
-    // Prefab for a single hostess entry, assign in the Inspector.
     public GameObject hostListItemPrefab;
-
-    // The container (a UI panel) that has the Vertical Layout Group component.
     private Transform hostUIContainer;
-
-    // The list of hostesses to display.
     private List<GameObject> hosts;
+    private GameObject selectedHost;
 
     private void Awake()
     {
-        this.tablesManager = FindAnyObjectByType<TablesManager>();
-        this.hostUIContainer = gameObject.transform;
-        this.tablesManager.OnHostAssigned += this.HandleOnHostAssigned;
-        this.tablesManager.OnSessionFinished += this.HandleOnSessionFinished;
+        hostUIContainer = gameObject.transform;
     }
 
     public void SetHostsForShiftList(List<GameObject> hosts)
     {
         this.hosts = hosts;
-        this.PopulateHostUIList();
+        PopulateHostUIList();
     }
 
     private void CreateHostListItem(GameObject hostGo)
@@ -47,18 +39,6 @@ public class ShiftHostsUI : MonoBehaviour
                 hostNameText.text = host.Name;
             }
         }
-        
-    }
-
-    private void HandleOnHostAssigned(GameObject host)
-    {
-        host.GetComponent<HostBehavior>().Activate();
-        this.RemoveHostFromUIList(host);
-    }
-
-    private void HandleOnSessionFinished(GameObject host)
-    {
-        this.AddHostToUIList(host);
     }
 
     private void PopulateHostUIList()
@@ -70,27 +50,28 @@ public class ShiftHostsUI : MonoBehaviour
         }
 
         // Instantiate a UI entry for each hostess in the list.
-        foreach (GameObject hostGo in this.hosts)
+        foreach (GameObject hostGo in hosts)
         {
-            this.CreateHostListItem(hostGo);
+            CreateHostListItem(hostGo);
         }
     }
 
-    private void AddHostToUIList(GameObject hostGo)
+    public void AddHostToList(GameObject hostGo)
     {
         if (!hosts.Contains(hostGo))
         {
             hosts.Add(hostGo);
             Debug.Log("Add  host list item to UI");
-            this.CreateHostListItem(hostGo);
+            CreateHostListItem(hostGo);
         }
     }
 
-    private void RemoveHostFromUIList(GameObject host)
+    public void RemoveHostFromList(GameObject host)
     {
-        if (this.hosts.Contains(host))
+        host.GetComponent<HostBehavior>().Activate();
+        if (hosts.Contains(host))
         {
-            this.hosts.Remove(host);
+            hosts.Remove(host);
 
             // Find and destroy only the corresponding UI entry
             foreach (Transform child in hostUIContainer)
@@ -104,5 +85,20 @@ public class ShiftHostsUI : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SelectHost(GameObject host)
+    {
+        selectedHost = host;
+    }
+
+    public GameObject SelectedHost()
+    {
+        return selectedHost;
+    }
+
+    public void ClearSelection()
+    {
+        selectedHost = null;
     }
 }

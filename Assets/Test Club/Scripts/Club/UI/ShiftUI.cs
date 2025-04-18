@@ -4,50 +4,21 @@ using UnityEngine;
 
 public class ShiftUI : MonoBehaviour
 {
+    [SerializeField]
     private ShiftManager shiftManager;
     private ShiftHostsUI shiftHostsUi;
-
+    [SerializeField]
     private Transform dimBackground;
+    [SerializeField]
     private Transform shiftTimer;
+    [SerializeField]
     private Transform shiftHostsList;
 
     private void Awake()
     {
-        shiftHostsUi = FindFirstObjectByType<ShiftHostsUI>();
-        shiftManager = FindFirstObjectByType<ShiftManager>();
+        shiftHostsUi = GetComponentInChildren<ShiftHostsUI>();
         shiftManager.OnShiftStarted += OnShiftStartedHandler;
-        InitUI();
-    }
-
-    private void InitUI()
-    {
-
-        dimBackground = transform.Find("DimBackground");
-        if (dimBackground)
-        {
-            dimBackground.gameObject.SetActive(false);
-        }
-        shiftTimer = transform.Find("");
-        if (shiftTimer != null)
-        {
-            shiftTimer.gameObject.SetActive(false);
-        }
-        shiftHostsList = transform.Find("");
-        if (shiftHostsList != null)
-        {
-            shiftHostsList.gameObject.SetActive(false);
-        }
-    }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        HideShiftUI();
     }
 
     public void OnShiftStartedHandler(List<GameObject> hosts)
@@ -80,9 +51,10 @@ public class ShiftUI : MonoBehaviour
 
     public void HideShiftUI()
     {
-        HideUIComponent(shiftHostsList);
-        HideUIComponent(shiftTimer);
-        HideUIComponent(dimBackground);
+        foreach (Transform child in gameObject.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
     }
 
     public void ShowDimBackground()

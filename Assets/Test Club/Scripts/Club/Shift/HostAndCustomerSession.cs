@@ -6,7 +6,6 @@ public class HostAndCustomerSession: MonoBehaviour
 {
     private bool shiftActive;
     private readonly float waitingForHostTime = 10f;
-    //private readonly float maxSessionTimeWithoutExtension = 90f; 
     private readonly float defaultSessionTime = 40f;
 
     private ShiftData shiftData;
@@ -22,13 +21,19 @@ public class HostAndCustomerSession: MonoBehaviour
     private GameObject assignedHost;
     private Transform hostPlace;
 
+    private Transform table;
+    private TablePanelUI tablePanelUI;
+
     public event Action<GameObject> OnSessionFinished;
+    public event Action<GameObject> OnHostAssigned;
 
     private void Awake()
     {
         clubManager = ClubManager.GetInstance();
-        customerPlace = gameObject.transform.Find(ComponentsNames.CustomerPlaceOnTable);
-        hostPlace = gameObject.transform.Find(ComponentsNames.HostPlaceOnTable);
+        table = transform.Find("Table");
+        customerPlace = table.Find(ComponentsNames.CustomerPlaceOnTable);
+        hostPlace = table.Find(ComponentsNames.HostPlaceOnTable);
+        tablePanelUI = gameObject.GetComponentInChildren<TablePanelUI>();
     }
 
     void Start()
@@ -73,7 +78,7 @@ public class HostAndCustomerSession: MonoBehaviour
     /// <summary>
     /// Check if the session is still active
     /// </summary>
-    private bool SessionContinues()
+    public bool SessionActive()
     {
         return shiftActive && HostAssigned() && CustomerAssigned();
     }
@@ -122,25 +127,36 @@ public class HostAndCustomerSession: MonoBehaviour
         {
             StopServiceRoutine();
         }
+        tablePanelUI.ClearUI();
+    }
+
+    public GameObject GetHost()
+    {
+        return assignedHost;
     }
 
     public void AssignHost(GameObject hostGo)
     {
         Host host = hostGo.GetComponent<HostBehavior>().GetHost();
         if (host == null) return;
+
         if (assignedCustomer == null)
         {
             Debug.LogError("Host cannot be assigned: there is no customer behind this table");
+            return;
         }
 
         assignedHost = hostGo;
         host = assignedHost.GetComponent<HostBehavior>().GetHost();
         PositionHost(assignedHost);
         assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
+        tablePanelUI.ShowPanel(host);
+        // TODO this condition can spoil hosts swap probably
         if (shiftActive && serviceCoroutine == null)
         {
             StartServiceRoutine();
         }
+        OnHostAssigned?.Invoke(assignedHost);
     }
 
     private void PositionHost(GameObject host)
@@ -152,11 +168,14 @@ public class HostAndCustomerSession: MonoBehaviour
     /// <summary>
     /// Unassignes hostess from the table
     /// </summary>
-    public void UnassignHost()
+    public GameObject UnassignHost()
     {
+        GameObject host = assignedHost;
         hostPlace.DetachChildren();
         assignedHost.GetComponent<HostBehavior>().Deactivate();
+        tablePanelUI.HidePanel();
         assignedHost = null;
+        return host;
         // Here I must run waiting timer for customer
     }
 
@@ -217,7 +236,7 @@ public class HostAndCustomerSession: MonoBehaviour
         float timeElapsed = 0f;
         Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
         CustomerBehavior customer = assignedCustomer.GetComponent<CustomerBehavior>();
-        while (SessionContinues() && timeElapsed < defaultSessionTime)
+        while (SessionActive() && timeElapsed < defaultSessionTime)
         {
             // Wait M seconds
             yield return new WaitForSeconds(host.ChargeInterval);
