@@ -16,12 +16,10 @@ public class HostAndCustomerSession: MonoBehaviour
     private Coroutine waitingHostCoroutine;
 
     private GameObject assignedCustomer;
-    private Transform customerPlace;
 
     private GameObject assignedHost;
-    private Transform hostPlace;
 
-    private Transform table;
+    private TableManager tableManager;
     private TablePanelUI tablePanelUI;
 
     public event Action<GameObject> OnSessionFinished;
@@ -30,9 +28,7 @@ public class HostAndCustomerSession: MonoBehaviour
     private void Awake()
     {
         clubManager = ClubManager.GetInstance();
-        table = transform.Find("Table");
-        customerPlace = table.Find(ComponentsNames.CustomerPlaceOnTable);
-        hostPlace = table.Find(ComponentsNames.HostPlaceOnTable);
+        tableManager = gameObject.GetComponentInChildren<TableManager>();
         tablePanelUI = gameObject.GetComponentInChildren<TablePanelUI>();
     }
 
@@ -40,8 +36,6 @@ public class HostAndCustomerSession: MonoBehaviour
     {
         shiftData = FindFirstObjectByType<ShiftManager>().GetShiftData();
     }
-
-
 
     /// <summary>
     /// Check if a table is empty (no customer, no host).
@@ -92,14 +86,14 @@ public class HostAndCustomerSession: MonoBehaviour
     }
 
     /// <summary>
-    /// Called by some logic that assigns a client to this hostess.
+    /// Assigns a customer to the session
     /// </summary>
     public void AssignCustomer(GameObject customer)
     {
         if (customer == null) return;
 
         assignedCustomer = customer;
-        PositionCustomer(assignedCustomer);
+        tableManager.SitCustomerOnTable(assignedCustomer);
         if(waitingHostCoroutine == null)
         {
             customer.GetComponent<CustomerBehavior>().StartWaiting();
@@ -107,38 +101,47 @@ public class HostAndCustomerSession: MonoBehaviour
         }
     }
 
-    private void PositionCustomer(GameObject customer)
+    /// <summary>
+    /// Unassigns a customer from the session.
+    /// </summary>
+    public GameObject UnassignCustomer()
     {
-        customer.transform.SetParent(customerPlace.transform);
-        customer.transform.position = customerPlace.position;
+        if(assignedCustomer != null)
+        {
+            GameObject customer = assignedCustomer;
+            tableManager.RemoveCustomerFromPlace();
+            assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
+            assignedCustomer.SetActive(false);
+            assignedCustomer = null;
+            // Stop charging if the hostess was in the middle of servicing
+            if (serviceCoroutine != null)
+            {
+                StopServiceRoutine();
+            }
+            tablePanelUI.ClearUI();
+            return customer;
+        }
+        return null;
     }
 
     /// <summary>
-    /// Called by some logic that unassigns a client from this hostess.
+    /// Returns the current session host
     /// </summary>
-    public void UnassignCustomer()
-    {
-        customerPlace.DetachChildren();
-        assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
-        assignedCustomer.SetActive(false);
-        assignedCustomer = null;
-        // Stop charging if the hostess was in the middle of servicing
-        if (serviceCoroutine != null)
-        {
-            StopServiceRoutine();
-        }
-        tablePanelUI.ClearUI();
-    }
-
     public GameObject GetHost()
     {
         return assignedHost;
     }
 
+    /// <summary>
+    /// Assigns a host to a waiting customer
+    /// </summary>
     public void AssignHost(GameObject hostGo)
     {
-        Host host = hostGo.GetComponent<HostBehavior>().GetHost();
-        if (host == null) return;
+        if (hostGo == null)
+        {
+            Debug.LogError("You are trying to assign host which value is 'null'");
+            return;
+        }
 
         if (assignedCustomer == null)
         {
@@ -147,11 +150,10 @@ public class HostAndCustomerSession: MonoBehaviour
         }
 
         assignedHost = hostGo;
-        host = assignedHost.GetComponent<HostBehavior>().GetHost();
-        PositionHost(assignedHost);
+        tableManager.SitHostOnTable(assignedHost);
         assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
+        Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
         tablePanelUI.ShowPanel(host);
-        // TODO this condition can spoil hosts swap probably
         if (shiftActive && serviceCoroutine == null)
         {
             StartServiceRoutine();
@@ -159,43 +161,60 @@ public class HostAndCustomerSession: MonoBehaviour
         OnHostAssigned?.Invoke(assignedHost);
     }
 
-    private void PositionHost(GameObject host)
-    {
-        host.transform.SetParent(hostPlace.transform);
-        host.transform.position = hostPlace.position;
-    }
-
     /// <summary>
     /// Unassignes hostess from the table
     /// </summary>
     public GameObject UnassignHost()
     {
-        GameObject host = assignedHost;
-        hostPlace.DetachChildren();
-        assignedHost.GetComponent<HostBehavior>().Deactivate();
-        tablePanelUI.HidePanel();
-        assignedHost = null;
-        return host;
+        if (assignedHost != null)
+        {
+            GameObject host = assignedHost;
+            tableManager.RemoveHostFromPlace();
+            assignedHost.GetComponent<HostBehavior>().Deactivate();
+            tablePanelUI.HidePanel();
+            assignedHost = null;
+            return host;
+        }
+        return null;
         // Here I must run waiting timer for customer
     }
 
+    /// <summary>
+    /// Starts a coroutine of serving the customer by the hostess
+    /// </summary>
     private void StartServiceRoutine()
     {
         serviceCoroutine = StartCoroutine(ServeCustomerRoutine());
     }
 
+    /// <summary>
+    /// Stops the serving coroutine
+    /// </summary>
     private void StopServiceRoutine()
     {
         StopCoroutine(serviceCoroutine);
         serviceCoroutine = null;
     }
 
+    /// <summary>
+    /// Finishes the session
+    /// </summary>
     private void FinishSession()
     {
         OnSessionFinished.Invoke(assignedHost);
         shiftData.AddServedCustomer();
         UnassignCustomer();
         UnassignHost();
+    }
+
+    /// <summary>
+    /// Clears the session
+    /// </summary>
+    public void ClearSession()
+    {
+        SetShiftActive(false);
+        UnassignHost();
+        UnassignCustomer();
     }
 
     private IEnumerator WaitForHostToBeAssignedRoutine()

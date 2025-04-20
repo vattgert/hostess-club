@@ -21,6 +21,11 @@ public class TablesManager : MonoBehaviour
         customerInvitationManager.OnCustomerInvited += AssignCustomerToFreeTable;
     }
 
+    public HostAndCustomerSession[] GetSessions()
+    {
+        return tables;
+    }
+
     public GameObject SelectedTable()
     {
         return selectedTable;
@@ -31,7 +36,7 @@ public class TablesManager : MonoBehaviour
         selectedTable = table;
     }
 
-    public void ClearSelected()
+    private void ClearSelected()
     {
         selectedTable = null;
     }
@@ -129,7 +134,7 @@ public class TablesManager : MonoBehaviour
         ClearSelections();
     }
 
-    public void ClearHighlights()
+    private void ClearHighlights()
     {
         foreach (var table in tables)
         {
@@ -172,5 +177,13 @@ public class TablesManager : MonoBehaviour
         SwapHostsBetweenSessionAndList(newHost, session);
         ClearHighlights();
         ClearSelections();
+    }
+
+    public void ClearSessions()
+    {
+        foreach (HostAndCustomerSession table in tables)
+        {
+            table.ClearSession();
+        }
     }
 }

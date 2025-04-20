@@ -13,7 +13,7 @@ public class ShiftManager : MonoBehaviour
     private ShiftTimer shiftTimer;
     private CustomerManager customerManager;
     private HostManager hostManager;
-    private HostAndCustomerSession[] hostsSessionsOnTables;
+    private TablesManager tablesManager;
 
     public event Action<List<GameObject>> OnShiftStarted;
     public event Action<ShiftData> OnShiftFinished;
@@ -24,7 +24,7 @@ public class ShiftManager : MonoBehaviour
         shiftTimer = gameObject.GetComponent<ShiftTimer>();
         customerManager = gameObject.GetComponent<CustomerManager>();
         hostManager = gameObject.GetComponent<HostManager>();
-        hostsSessionsOnTables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
+        tablesManager = gameObject.GetComponent<TablesManager>();
         shiftActive.SetValue(false);
         shiftActive.Subscribe(rootContext, ChangeShiftState);
         shiftTimer.OnShiftTimerComplete += EndShift;
@@ -32,17 +32,9 @@ public class ShiftManager : MonoBehaviour
 
     private void StartShiftForHosts()
     {
-        foreach (HostAndCustomerSession host in hostsSessionsOnTables)
+        foreach (HostAndCustomerSession host in tablesManager.GetSessions())
         {
             host.SetShiftActive(true);
-        }
-    }
-
-    private void EndShiftForHosts()
-    {
-        foreach (HostAndCustomerSession host in hostsSessionsOnTables)
-        {
-            host.SetShiftActive(false);
         }
     }
 
@@ -76,8 +68,9 @@ public class ShiftManager : MonoBehaviour
     void EndShift()
     {
         shiftTimer.StopTimer();
-        customerManager.ClearShiftCustomers();
-        EndShiftForHosts();
+        tablesManager.ClearSessions();
+        customerManager.ClearCustomers();
+        hostManager.ClearHosts();
         OnShiftFinished?.Invoke(shiftData);
         Debug.Log("Shift ended");
     }

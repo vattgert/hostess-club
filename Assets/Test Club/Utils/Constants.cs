@@ -5,4 +5,6 @@ public static class ComponentsNames
     public const string HostPlaceOnTable = "Host Place";
     public const string CustomerWaitingCountdown = "CustomerWaitingCountdown";
     public const string TableManagmentCanvas = "TableManagmentCanvas";
+    public const string CustomersContainer = "CustomersContainer";
+    public const string HostsContainer = "HostsContainer";
 }
