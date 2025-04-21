@@ -18,7 +18,7 @@ public class TablesManager : MonoBehaviour
             table.OnHostAssigned += shiftHostsUI.RemoveHostFromList;
         }
         customerInvitationManager = gameObject.GetComponent<CustomerInvitationManager>();
-        customerInvitationManager.OnCustomerInvited += AssignCustomerToFreeTable;
+        //customerInvitationManager.OnCustomerInvited += AssignCustomerToFreeTable;
     }
 
     public HostAndCustomerSession[] GetSessions()

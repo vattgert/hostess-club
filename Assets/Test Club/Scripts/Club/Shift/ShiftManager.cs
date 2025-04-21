@@ -54,6 +54,11 @@ public class ShiftManager : MonoBehaviour
         }
     }
 
+    public bool ShiftActive()
+    {
+        return shiftActive.Value;
+    }
+
     void StartShift()
     {
         Debug.Log("Shift started");
