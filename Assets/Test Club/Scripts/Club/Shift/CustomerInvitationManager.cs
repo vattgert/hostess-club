@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CustomerInvitationManager : MonoBehaviour
@@ -11,6 +12,9 @@ public class CustomerInvitationManager : MonoBehaviour
     private TablesManager tablesManager;
     private CustomerManager customerManager;
     private HostManager hostManager;
+
+    [SerializeField]
+    private SpriteRenderer entrance;
 
     public event Action<GameObject> OnCustomerInvited;
 
@@ -25,11 +29,21 @@ public class CustomerInvitationManager : MonoBehaviour
         nextInviteTime = firstCustomerInviteTime;
     }
 
+    private void SpawnCustomerNearEntrance(GameObject customer)
+    {
+        Bounds doorBounds = entrance.bounds;
+        float xCenter = doorBounds.center.x;
+        float yBelow = doorBounds.min.y - 0.7f; // 2 units *below* the door
+
+        Vector3 spawnPosition = new Vector3(xCenter, yBelow, 0f);
+        customer.transform.position = spawnPosition;
+    }
+
     private void InviteCustomer()
     {
         GameObject customer = customerManager.GetCustomers().Pop();
-        CustomerBehavior customerBehaviour = customer.GetComponent<CustomerBehavior>();
-        customerBehaviour.CreateCustomer();
+        customer.SetActive(true);
+        SpawnCustomerNearEntrance(customer);
         OnCustomerInvited?.Invoke(customer);
     }
 

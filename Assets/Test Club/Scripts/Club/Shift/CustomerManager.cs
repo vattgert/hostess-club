@@ -4,6 +4,8 @@ using UnityEngine;
 public class CustomerManager : MonoBehaviour
 {
     private GameObject customersContainer;
+    [SerializeField]
+    private GameObject customerPrefab;
     private Stack<GameObject> customers;
 
     void Awake()
@@ -29,15 +31,16 @@ public class CustomerManager : MonoBehaviour
     private GameObject CreateCustomer()
     {
         Customer customer = new Customer(CustomerType.Poor);
-        GameObject customerGO = new GameObject();
-        CustomerBehavior cb = customerGO.AddComponent<CustomerBehavior>();
-        cb.Initialize(customer);
-        SetCustomerInContainer(customerGO);
-        return customerGO;
+        GameObject customerGo = new CustomerBuilder(customerPrefab)
+            .SetCustomerData(customer)
+            .SetActive(false)
+            .Build();
+        SetCustomerInContainer(customerGo);
+        return customerGo;
     }
 
     public void GenerateCustomersPoolForShift() { 
-        for(int i = 0; i < 10; i++)
+        for(int i = 0; i < 1; i++)
         {
             customers.Push(CreateCustomer());
         }

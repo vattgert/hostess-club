@@ -96,7 +96,7 @@ public class HostAndCustomerSession: MonoBehaviour
         tableManager.SitCustomerOnTable(assignedCustomer);
         if(waitingHostCoroutine == null)
         {
-            customer.GetComponent<CustomerBehavior>().StartWaiting();
+            customer.GetComponent<CustomerBehavior>().ActivateWaitingUI();
             waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
         }
     }
