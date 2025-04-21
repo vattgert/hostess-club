@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 413531797195472344}
   - component: {fileID: 7851577757522652052}
   - component: {fileID: 3563583517257345044}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PulsingOverlay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 8459034330273677857}
   - component: {fileID: 2045918319014409815}
   - component: {fileID: 5222353550812862968}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TableManagmentCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 6622624503115624480}
   - component: {fileID: 5893179080602709539}
   - component: {fileID: 1776872935116249984}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BackgroundImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -313,7 +313,7 @@ GameObject:
   - component: {fileID: 1529115255727086058}
   - component: {fileID: 6644902677852630202}
   - component: {fileID: 653575907758333136}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -452,7 +452,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3124894814503064292}
   - component: {fileID: 2933406222165561142}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TablePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -500,7 +500,7 @@ GameObject:
   - component: {fileID: 4819094507881605206}
   - component: {fileID: 7220711723140856446}
   - component: {fileID: 8584915542657619345}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ClickableBackgroundButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -645,7 +645,7 @@ GameObject:
   - component: {fileID: 8533330833551913128}
   - component: {fileID: 6854418273240583535}
   - component: {fileID: 8922544027575434214}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HostNameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -779,7 +779,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8590806919360536901}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Customer Place
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -810,7 +810,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 750941567988482209}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Host Place
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -844,7 +844,8 @@ GameObject:
   - component: {fileID: 7629940915063967803}
   - component: {fileID: 3596764666204688565}
   - component: {fileID: 3721314235258459987}
-  m_Layer: 0
+  - component: {fileID: 1062623668199874210}
+  m_Layer: 8
   m_Name: TableContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -971,3 +972,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d11b0dcf149bc0b4980a692d63331c67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1062623668199874210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7588663082488606761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_OverrideArea: 1
+  m_Area: 1
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
