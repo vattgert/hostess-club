@@ -312,7 +312,6 @@ GameObject:
   - component: {fileID: 2215379287674192298}
   - component: {fileID: 1529115255727086058}
   - component: {fileID: 6644902677852630202}
-  - component: {fileID: 653575907758333136}
   m_Layer: 8
   m_Name: Table
   m_TagString: Untagged
@@ -428,20 +427,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!114 &653575907758333136
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3822300203235781656}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1afa1cd7dfe5234e97e2da5387f33a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  customerPlace: {fileID: 8590806919360536901}
-  hostPlace: {fileID: 750941567988482209}
 --- !u!1 &4461580230185268816
 GameObject:
   m_ObjectHideFlags: 0
@@ -844,7 +829,8 @@ GameObject:
   - component: {fileID: 7629940915063967803}
   - component: {fileID: 3596764666204688565}
   - component: {fileID: 3721314235258459987}
-  - component: {fileID: 1062623668199874210}
+  - component: {fileID: 6159785681472953205}
+  - component: {fileID: 2547653157197599654}
   m_Layer: 8
   m_Name: TableContainer
   m_TagString: Untagged
@@ -972,7 +958,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d11b0dcf149bc0b4980a692d63331c67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1062623668199874210
+--- !u!114 &6159785681472953205
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -981,14 +967,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 7588663082488606761}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Script: {fileID: 11500000, guid: d1afa1cd7dfe5234e97e2da5387f33a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_SerializedVersion: 0
-  m_OverrideArea: 1
-  m_Area: 1
-  m_OverrideGenerateLinks: 0
-  m_GenerateLinks: 0
-  m_IgnoreFromBuild: 0
-  m_ApplyToChildren: 1
-  m_AffectedAgents: ffffffff
+  customerPlace: {fileID: 8590806919360536901}
+  hostPlace: {fileID: 750941567988482209}
+--- !u!114 &2547653157197599654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7588663082488606761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 457fd0e8d962e014a81f159bdb63d7d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waypoints: []

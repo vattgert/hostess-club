@@ -4,6 +4,10 @@ public class TablesManager : MonoBehaviour
 {
     [SerializeField]
     private ShiftHostsUI shiftHostsUI;
+
+    [SerializeField]
+    private ReceptionZone receptionZone;
+
     private HostAndCustomerSession[] tables;
     private CustomerInvitationManager customerInvitationManager;
     private GameObject selectedTable;
@@ -45,7 +49,7 @@ public class TablesManager : MonoBehaviour
     {
         foreach(HostAndCustomerSession session in tables)
         {
-            if (session.TableEmpty())
+            if (session.TableFree())
             {
                 session.AssignCustomer(customer);
                 break;
@@ -57,12 +61,24 @@ public class TablesManager : MonoBehaviour
     {
         foreach (HostAndCustomerSession session in tables)
         {
-            if (session.TableEmpty())
+            if (session.TableFree())
             {
                 return true;
             }
         }
         return false;
+    }
+
+    public void HighlightFreeTables()
+    {
+        foreach (var table in tables)
+        {
+            if (table.TableFree())
+            {
+                TablePanelUI tableUI = table.GetComponentInChildren<TablePanelUI>();
+                tableUI.Highlight(true);
+            }
+        }
     }
 
     public void HighlightTablesWaitingForHost()
@@ -116,7 +132,11 @@ public class TablesManager : MonoBehaviour
         bool hostFromListAssignedToTable = selectedHost != null && selectedTable == null;
         bool hostFromTableAssignedToTable = selectedHost == null && selectedTable != null;
 
-        if (hostFromListAssignedToTable)
+        if (session.TableFree())
+        {
+            receptionZone.WalkCustomerToSelectedTable(session);
+        }
+        else if (hostFromListAssignedToTable)
         {
             if (session.SessionActive())
             {

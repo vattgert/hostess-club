@@ -1,4 +1,3 @@
-using GamesCore.ObservableSubjects;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +5,7 @@ using UnityEngine;
 public class ShiftManager : MonoBehaviour
 {
     [SerializeField]
-    private RootObservableContext rootContext;
-    private ObservableSubject<bool> shiftActive = new ObservableSubject<bool>();
+    private bool shiftActive;
     private ShiftData shiftData;
 
     private ShiftTimer shiftTimer;
@@ -20,13 +18,12 @@ public class ShiftManager : MonoBehaviour
 
     private void Awake()
     {
+        shiftActive = false;
         shiftData = new ShiftData();
         shiftTimer = gameObject.GetComponent<ShiftTimer>();
         customerManager = gameObject.GetComponent<CustomerManager>();
         hostManager = gameObject.GetComponent<HostManager>();
         tablesManager = gameObject.GetComponent<TablesManager>();
-        shiftActive.SetValue(false);
-        shiftActive.Subscribe(rootContext, ChangeShiftState);
         shiftTimer.OnShiftTimerComplete += EndShift;
     }
 
@@ -43,9 +40,9 @@ public class ShiftManager : MonoBehaviour
         return shiftData;
     }
 
-    public void ChangeShiftState(bool shiftActive)
+    public void ChangeShiftState()
     {
-        if(shiftActive)
+        if(!shiftActive)
         {
             StartShift();
         } else
@@ -56,12 +53,13 @@ public class ShiftManager : MonoBehaviour
 
     public bool ShiftActive()
     {
-        return shiftActive.Value;
+        return shiftActive;
     }
 
     void StartShift()
     {
         Debug.Log("Shift started");
+        shiftActive = true;
         shiftData.Clear();
         customerManager.GenerateCustomersPoolForShift();
         hostManager.GenerateShiftHosts();
@@ -72,6 +70,7 @@ public class ShiftManager : MonoBehaviour
 
     void EndShift()
     {
+        shiftActive = false;
         shiftTimer.StopTimer();
         tablesManager.ClearSessions();
         customerManager.ClearCustomers();

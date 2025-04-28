@@ -40,7 +40,7 @@ public class HostAndCustomerSession: MonoBehaviour
     /// <summary>
     /// Check if a table is empty (no customer, no host).
     /// </summary>
-    public bool TableEmpty()
+    public bool TableFree()
     {
         return assignedCustomer == null && assignedHost == null;
     }

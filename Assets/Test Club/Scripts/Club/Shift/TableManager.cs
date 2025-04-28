@@ -7,6 +7,16 @@ public class TableManager : MonoBehaviour
     [SerializeField]
     private Transform hostPlace;
 
+    public Transform CustomerPlace()
+    {
+        return customerPlace;
+    }
+
+    public Transform HostPlace()
+    {
+        return hostPlace;
+    }
+
     public void SitHostOnTable(GameObject host)
     {
         host.transform.SetParent(hostPlace.transform);

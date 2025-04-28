@@ -5,11 +5,24 @@ public class ReceptionZone : MonoBehaviour
 {
     [SerializeField]
     private CustomerInvitationManager customerInvitationManager;
+
     [SerializeField]
     private ShiftManager shiftManager;
 
+    [SerializeField]
+    private TablesManager tablesManager;
+
+
     private bool playerInZone = false;
     private bool customerInZone = false;
+    private GameObject customer;
+
+    private HoldInput FInputHold;
+
+    private void Awake()
+    {
+        FInputHold = new HoldInput(KeyCode.F);
+    }
 
     void Start()
     {
@@ -21,18 +34,33 @@ public class ReceptionZone : MonoBehaviour
         customerInvitationManager.OnCustomerInvited -= ProcessCustomerOnReception;
     }
 
+    private void SetCustomer(GameObject c)
+    {
+        customer = c;
+        customerInZone = true;
+    }
+
+    private void ResetCustomer()
+    {
+        customerInZone = false;
+        customer = null;
+    }
+
     private void ProcessCustomerOnReception(GameObject customer)
     {
-        Debug.Log("Process customer when appeared in zone");
+        /*Debug.Log("Process customer when appeared in zone");
         Collider2D inviteTrigger = gameObject.GetComponent<Collider2D>();
         Collider2D customerCollider = customer.GetComponent<Collider2D>();
         bool collidersIntesect = inviteTrigger.bounds.Intersects(customerCollider.bounds);
         bool receptionColliderContains = inviteTrigger.bounds.Contains(customerCollider.bounds.center);
+        Debug.Log("Shift active: " + shiftManager.ShiftActive());
         if (shiftManager.ShiftActive() && (collidersIntesect || receptionColliderContains))
         {
-            customerInZone = true;
-            Debug.Log("Customer entered reception zone");
-        }
+            SetCustomer(customer);
+            //Debug.Log("This is a new customer");
+            //Debug.Log(customer);
+            //Debug.Log("Customer entered reception zone");
+        }*/
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -47,7 +75,9 @@ public class ReceptionZone : MonoBehaviour
 
             if (other.CompareTag("Customer"))
             {
-                customerInZone = true;
+                SetCustomer(other.gameObject);
+                Debug.Log("This is a new customer");
+                Debug.Log(customer);
                 Debug.Log("Customer entered reception zone");
             }
         }
@@ -63,8 +93,16 @@ public class ReceptionZone : MonoBehaviour
 
         if (other.CompareTag("Customer"))
         {
-            customerInZone = false;
+            ResetCustomer();
             Debug.Log("Customer exited reception zone");
+        }
+    }
+
+    private void OnReceptionInputHold()
+    {
+        if (customerInZone)
+        {
+            tablesManager.HighlightFreeTables();
         }
     }
 
@@ -72,11 +110,13 @@ public class ReceptionZone : MonoBehaviour
     {
         if (shiftManager.ShiftActive() && playerInZone && customerInZone)
         {
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                Debug.Log("F pressed — initiate table selection or next step");
-                // TODO: Call whatever comes next
-            }
+            FInputHold.Hold(OnReceptionInputHold);
         }
+    }
+
+    public void WalkCustomerToSelectedTable(HostAndCustomerSession session)
+    {
+        GameObject table = session.gameObject;
+        customer.GetComponent<CustomerMovement>().TakePlaceBehindTheTable(table);
     }
 }

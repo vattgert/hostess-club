@@ -4,7 +4,6 @@ using UnityEngine;
 public class ChangeShiftStateClickHandler : MonoBehaviour
 {
     private ShiftManager shiftManager;
-    private bool shiftState = false;
 
     private void Start()
     {
@@ -12,8 +11,6 @@ public class ChangeShiftStateClickHandler : MonoBehaviour
     }
     public void OnButtonClicked()
     {
-        this.shiftState = !this.shiftState;
-        Debug.Log("Shift was changed to " + this.shiftState);
-        shiftManager.ChangeShiftState(this.shiftState);
+        shiftManager.ChangeShiftState();
     }
 }
