@@ -6,10 +6,12 @@ public class CustomerManager : MonoBehaviour
     private GameObject customersContainer;
     [SerializeField]
     private GameObject customerPrefab;
+    private TablesManager tablesManager;
     private Stack<GameObject> customers;
 
     void Awake()
     {
+        tablesManager = gameObject.GetComponent<TablesManager>();
         customersContainer = new GameObject(ComponentsNames.CustomersContainer);
     }
 
@@ -36,6 +38,7 @@ public class CustomerManager : MonoBehaviour
             .SetActive(false)
             .Build();
         SetCustomerInContainer(customerGo);
+        tablesManager.SubscribeOnCharacterArrival(customerGo);
         return customerGo;
     }
 
@@ -44,7 +47,6 @@ public class CustomerManager : MonoBehaviour
         {
             customers.Push(CreateCustomer());
         }
-        Debug.Log("Customer generated: " + customers.Count);
     }
 
     public void ClearCustomers() {

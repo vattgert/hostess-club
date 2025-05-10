@@ -7,7 +7,7 @@ public class TablesManager : MonoBehaviour
 
     [SerializeField]
     private ReceptionZone receptionZone;
-
+    private HostManager hostManager;
     private HostAndCustomerSession[] tables;
     private CustomerInvitationManager customerInvitationManager;
     private GameObject selectedTable;
@@ -15,6 +15,7 @@ public class TablesManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        hostManager = gameObject.GetComponent<HostManager>();
         tables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
         foreach(HostAndCustomerSession table in tables)
         {
@@ -131,7 +132,6 @@ public class TablesManager : MonoBehaviour
         GameObject selectedHost = shiftHostsUI.SelectedHost();
         bool hostFromListAssignedToTable = selectedHost != null && selectedTable == null;
         bool hostFromTableAssignedToTable = selectedHost == null && selectedTable != null;
-
         if (session.TableFree())
         {
             receptionZone.WalkCustomerToSelectedTable(session);
@@ -141,9 +141,10 @@ public class TablesManager : MonoBehaviour
             if (session.SessionActive())
             {
                 SwapHostsBetweenSessionAndList(selectedHost, session);
-            } else
+            } 
+            else
             {
-                AssignHostToSession(session);
+                hostManager.CallHost(selectedHost, session);
             }
         } 
         else if (hostFromTableAssignedToTable)
@@ -167,11 +168,6 @@ public class TablesManager : MonoBehaviour
     {
         ClearSelected();
         shiftHostsUI.ClearSelection();
-    }
-
-    private void AssignHostToSession(HostAndCustomerSession session)
-    {
-        session.AssignHost(shiftHostsUI.SelectedHost());
     }
 
     private void SwapHostsBetweenSessions(HostAndCustomerSession target)
@@ -205,5 +201,30 @@ public class TablesManager : MonoBehaviour
         {
             table.ClearSession();
         }
+    }
+
+    private void AssignCharacterToSession(GameObject character, Transform arrival)
+    {
+        HostAndCustomerSession session = arrival.GetComponentInParent<HostAndCustomerSession>();
+        if(session != null)
+        {
+            if (character.CompareTag("Customer"))
+            {
+                session.AssignCustomer(character);
+            }
+            else if (character.CompareTag("Host"))
+            {
+                session.AssignHost(character);
+            }
+        } else
+        {
+            Debug.Log("Session is null on arrival");
+        }
+        
+    }
+
+    public void SubscribeOnCharacterArrival(GameObject character)
+    {
+        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination += AssignCharacterToSession;
     }
 }

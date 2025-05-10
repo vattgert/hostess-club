@@ -17,18 +17,6 @@ public class TableManager : MonoBehaviour
         return hostPlace;
     }
 
-    public void SitHostOnTable(GameObject host)
-    {
-        host.transform.SetParent(hostPlace.transform);
-        host.transform.position = hostPlace.position;
-    }
-
-    public void SitCustomerOnTable(GameObject customer)
-    {
-        customer.transform.SetParent(customerPlace.transform);
-        customer.transform.position = customerPlace.position;
-    }
-
     public void RemoveHostFromPlace()
     {
         foreach (Transform child in hostPlace)

@@ -93,11 +93,11 @@ public class HostAndCustomerSession: MonoBehaviour
         if (customer == null) return;
 
         assignedCustomer = customer;
-        tableManager.SitCustomerOnTable(assignedCustomer);
         if(waitingHostCoroutine == null)
         {
-            customer.GetComponent<CustomerBehavior>().ActivateWaitingUI();
-            waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
+            Debug.Log("Customer waiting must start here but for now I skip it");
+            //customer.GetComponent<CustomerBehavior>().ActivateWaitingUI();
+            //waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
         }
     }
 
@@ -150,7 +150,6 @@ public class HostAndCustomerSession: MonoBehaviour
         }
 
         assignedHost = hostGo;
-        tableManager.SitHostOnTable(assignedHost);
         assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
         Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
         tablePanelUI.ShowPanel(host);

@@ -1,5 +1,4 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CustomerInvitationManager : MonoBehaviour
@@ -15,8 +14,6 @@ public class CustomerInvitationManager : MonoBehaviour
 
     [SerializeField]
     private SpriteRenderer entrance;
-
-    public event Action<GameObject> OnCustomerInvited;
 
     private void Awake()
     {
@@ -44,7 +41,6 @@ public class CustomerInvitationManager : MonoBehaviour
         GameObject customer = customerManager.GetCustomers().Pop();
         customer.SetActive(true);
         SpawnCustomerNearEntrance(customer);
-        OnCustomerInvited?.Invoke(customer);
     }
 
     private void ResetInviteTimer(float timeLeft)

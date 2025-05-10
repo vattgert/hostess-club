@@ -4,17 +4,26 @@ using UnityEngine;
 public class TablePath : MonoBehaviour
 {
     [SerializeField]
-    private List<Transform> waypoints;
-    private LinkedList<Transform> linkedWaypoints;
+    private List<Transform> customerWaypoints;
+    private LinkedList<Transform> linkedCustomerWaypoints;
+    [SerializeField]
+    private List<Transform> hostWaypoints;
+    private LinkedList<Transform> linkedHostWaypoints;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        linkedWaypoints = new LinkedList<Transform>(waypoints);
+        linkedCustomerWaypoints = new LinkedList<Transform>(customerWaypoints);
+        linkedHostWaypoints = new LinkedList<Transform>(hostWaypoints);
     }
 
-    public LinkedList<Transform> PathOfPoints()
+    public LinkedList<Transform> CustomerPath()
     {
-        return linkedWaypoints;
+        return linkedCustomerWaypoints;
+    }
+
+    public LinkedList<Transform> HostPath()
+    {
+        return linkedHostWaypoints;
     }
 }

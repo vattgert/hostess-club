@@ -26,12 +26,7 @@ public class ReceptionZone : MonoBehaviour
 
     void Start()
     {
-        customerInvitationManager.OnCustomerInvited += ProcessCustomerOnReception;
-    }
-
-    private void OnDestroy()
-    {
-        customerInvitationManager.OnCustomerInvited -= ProcessCustomerOnReception;
+     
     }
 
     private void SetCustomer(GameObject c)
@@ -44,23 +39,6 @@ public class ReceptionZone : MonoBehaviour
     {
         customerInZone = false;
         customer = null;
-    }
-
-    private void ProcessCustomerOnReception(GameObject customer)
-    {
-        /*Debug.Log("Process customer when appeared in zone");
-        Collider2D inviteTrigger = gameObject.GetComponent<Collider2D>();
-        Collider2D customerCollider = customer.GetComponent<Collider2D>();
-        bool collidersIntesect = inviteTrigger.bounds.Intersects(customerCollider.bounds);
-        bool receptionColliderContains = inviteTrigger.bounds.Contains(customerCollider.bounds.center);
-        Debug.Log("Shift active: " + shiftManager.ShiftActive());
-        if (shiftManager.ShiftActive() && (collidersIntesect || receptionColliderContains))
-        {
-            SetCustomer(customer);
-            //Debug.Log("This is a new customer");
-            //Debug.Log(customer);
-            //Debug.Log("Customer entered reception zone");
-        }*/
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -76,8 +54,6 @@ public class ReceptionZone : MonoBehaviour
             if (other.CompareTag("Customer"))
             {
                 SetCustomer(other.gameObject);
-                Debug.Log("This is a new customer");
-                Debug.Log(customer);
                 Debug.Log("Customer entered reception zone");
             }
         }
@@ -117,6 +93,6 @@ public class ReceptionZone : MonoBehaviour
     public void WalkCustomerToSelectedTable(HostAndCustomerSession session)
     {
         GameObject table = session.gameObject;
-        customer.GetComponent<CustomerMovement>().TakePlaceBehindTheTable(table);
+        customer.GetComponent<CustomerMovement>().WalkToTable(table);
     }
 }

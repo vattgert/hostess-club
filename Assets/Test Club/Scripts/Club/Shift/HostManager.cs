@@ -5,10 +5,16 @@ using UnityEngine;
 public class HostManager : MonoBehaviour
 {
     private GameObject hostsContainer;
+    [SerializeField]
+    private GameObject hostPrefab;
     private List<GameObject> hosts;
+    private TablesManager tablesManager;
+    [SerializeField]
+    private Transform hostSpawnPoint;
 
     private void Awake()
     {
+        tablesManager = gameObject.GetComponent<TablesManager>();
         hostsContainer  = new GameObject(ComponentsNames.HostsContainer);
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -25,12 +31,12 @@ public class HostManager : MonoBehaviour
     private GameObject CreateHost()
     {
         Host host = new Host();
-        GameObject hostGameObject = new GameObject();
-        hostGameObject.name = host.Name;
-        HostBehavior hostBehavior = hostGameObject.AddComponent<HostBehavior>();
-        hostBehavior.Initialize(host);
-        SetHostInContainer(hostGameObject);
-        return hostGameObject;
+        GameObject hostGo = new HostBuilder(hostPrefab)
+            .SetHostData(host)
+            .SetActive(false)
+            .Build();
+        SetHostInContainer(hostGo);
+        return hostGo;
     }
 
     public void GenerateShiftHosts()
@@ -64,5 +70,24 @@ public class HostManager : MonoBehaviour
         {
             GameObject.Destroy(child.gameObject);
         }
+    }
+
+    private void SpawnHostNearHostSpot(GameObject host)
+    {
+        host.transform.position = hostSpawnPoint.position;
+    }
+
+    private void WalkHostToAssignedTable(GameObject host, HostAndCustomerSession session)
+    {
+        GameObject table = session.gameObject;
+        host.GetComponent<HostMovement>().WalkToTable(table);
+    }
+
+    public void CallHost(GameObject host, HostAndCustomerSession session)
+    {
+        SpawnHostNearHostSpot(host);
+        host.SetActive(true);
+        tablesManager.SubscribeOnCharacterArrival(host);
+        WalkHostToAssignedTable(host, session);
     }
 }
