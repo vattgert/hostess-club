@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class StuffOnlyZone : MonoBehaviour
 {
+    [SerializeField]
+    ShiftHostsUI shiftHostsUI;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -39,6 +41,7 @@ public class StuffOnlyZone : MonoBehaviour
         if (hostStartPoint && hb != null)
         {
             host.SetActive(false);
+            shiftHostsUI.AddHostToList(host);
         }
     }
 
