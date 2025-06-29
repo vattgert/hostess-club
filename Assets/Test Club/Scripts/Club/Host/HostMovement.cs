@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class HostMovement : WaypointsMovement
@@ -11,13 +12,13 @@ public class HostMovement : WaypointsMovement
         StartWalking(way);
     }
 
-    protected override void OnArrivedAtFinalWaypoint(Transform arrival)
+    public void WalkFromTable(GameObject table)
     {
-        if (arrival.name == ComponentsNames.HostPlaceOnTable)
-        {
-            Debug.Log("Customer arrived");
-            RaiseArrivalEvent(gameObject, arrival);
-        }
+        TableManager tm = table.GetComponent<TableManager>();
+        LinkedList<Transform> way = table.GetComponent<TablePath>().HostPath();
+        way.AddLast(tm.HostPlace());
+        LinkedList<Transform> reversedWay = new LinkedList<Transform>(way.Reverse());
+        StartWalking(reversedWay);
     }
 
     private void Update()

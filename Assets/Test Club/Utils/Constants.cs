@@ -7,4 +7,6 @@ public static class ComponentsNames
     public const string TableManagmentCanvas = "TableManagmentCanvas";
     public const string CustomersContainer = "CustomersContainer";
     public const string HostsContainer = "HostsContainer";
+    public const string CustomerStartWaypoint = "CustomerStartWaypoint";
+    public const string HostStartWaypoint = "HostStartWaypoint";
 }

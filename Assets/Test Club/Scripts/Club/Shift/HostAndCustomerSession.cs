@@ -22,7 +22,7 @@ public class HostAndCustomerSession: MonoBehaviour
     private TableManager tableManager;
     private TablePanelUI tablePanelUI;
 
-    public event Action<GameObject> OnSessionFinished;
+    public event Action<HostAndCustomerSession> OnSessionFinished;
     public event Action<GameObject> OnHostAssigned;
 
     private void Awake()
@@ -76,6 +76,7 @@ public class HostAndCustomerSession: MonoBehaviour
     {
         return shiftActive && HostAssigned() && CustomerAssigned();
     }
+
     /// 
     /// <summary>
     /// Called by the ShiftManager when the shift starts or ends globally.
@@ -109,9 +110,8 @@ public class HostAndCustomerSession: MonoBehaviour
         if(assignedCustomer != null)
         {
             GameObject customer = assignedCustomer;
-            tableManager.RemoveCustomerFromPlace();
             assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
-            assignedCustomer.SetActive(false);
+            assignedCustomer.GetComponent<CustomerBehavior>().FinishedSession = true;
             assignedCustomer = null;
             // Stop charging if the hostess was in the middle of servicing
             if (serviceCoroutine != null)
@@ -133,7 +133,7 @@ public class HostAndCustomerSession: MonoBehaviour
     }
 
     /// <summary>
-    /// Assigns a host to a waiting customer
+    /// Assigns a host to a waiting customer and starts host service session
     /// </summary>
     public void AssignHost(GameObject hostGo)
     {
@@ -168,8 +168,7 @@ public class HostAndCustomerSession: MonoBehaviour
         if (assignedHost != null)
         {
             GameObject host = assignedHost;
-            tableManager.RemoveHostFromPlace();
-            assignedHost.GetComponent<HostBehavior>().Deactivate();
+            //tableManager.RemoveHostFromPlace();
             tablePanelUI.HidePanel();
             assignedHost = null;
             return host;
@@ -200,10 +199,8 @@ public class HostAndCustomerSession: MonoBehaviour
     /// </summary>
     private void FinishSession()
     {
-        OnSessionFinished.Invoke(assignedHost);
+        OnSessionFinished.Invoke(this);
         shiftData.AddServedCustomer();
-        UnassignCustomer();
-        UnassignHost();
     }
 
     /// <summary>

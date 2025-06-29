@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class HostBehavior : MonoBehaviour
 {
-    SpriteRenderer spriteRenderer;
     Host host;
     public void Initialize(Host host)
     {

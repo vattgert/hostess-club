@@ -9,7 +9,6 @@ public class TablesManager : MonoBehaviour
     private ReceptionZone receptionZone;
     private HostManager hostManager;
     private HostAndCustomerSession[] tables;
-    private CustomerInvitationManager customerInvitationManager;
     private GameObject selectedTable;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -19,11 +18,9 @@ public class TablesManager : MonoBehaviour
         tables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
         foreach(HostAndCustomerSession table in tables)
         {
-            table.OnSessionFinished += shiftHostsUI.AddHostToList;
+            table.OnSessionFinished += UnassignHostAndCustomerFromSession;
             table.OnHostAssigned += shiftHostsUI.RemoveHostFromList;
         }
-        customerInvitationManager = gameObject.GetComponent<CustomerInvitationManager>();
-        //customerInvitationManager.OnCustomerInvited += AssignCustomerToFreeTable;
     }
 
     public HostAndCustomerSession[] GetSessions()
@@ -170,6 +167,17 @@ public class TablesManager : MonoBehaviour
         shiftHostsUI.ClearSelection();
     }
 
+    private void UnassignHostAndCustomerFromSession(HostAndCustomerSession session)
+    {
+        GameObject table = session.gameObject;
+        GameObject customer = session.UnassignCustomer();
+        GameObject host = session.UnassignHost();
+        UnsubscribeOnCharacterArrival(customer);
+        UnsubscribeOnCharacterArrival(host);
+        customer.GetComponent<CustomerMovement>().WalkFromTable(table);
+        host.GetComponent<HostMovement>().WalkFromTable(table);
+    }
+
     private void SwapHostsBetweenSessions(HostAndCustomerSession target)
     {
         Debug.Log("Swapping hosts between tables");
@@ -216,15 +224,16 @@ public class TablesManager : MonoBehaviour
             {
                 session.AssignHost(character);
             }
-        } else
-        {
-            Debug.Log("Session is null on arrival");
         }
-        
     }
 
     public void SubscribeOnCharacterArrival(GameObject character)
     {
         character.GetComponent<WaypointsMovement>().OnArrivedAtDestination += AssignCharacterToSession;
+    }
+
+    private void UnsubscribeOnCharacterArrival(GameObject character)
+    {
+        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination -= AssignCharacterToSession;
     }
 }

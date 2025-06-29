@@ -16,6 +16,7 @@ public class WaypointsMovement : MonoBehaviour
     protected virtual void OnArrivedAtFinalWaypoint(Transform arrivedAt)
     {
         Debug.Log("On final waypoint arrived");
+        RaiseArrivalEvent(this.gameObject, arrivedAt);
     }
 
     protected void StartWalking(LinkedList<Transform> pathToWalk)
@@ -29,6 +30,17 @@ public class WaypointsMovement : MonoBehaviour
     protected void RaiseArrivalEvent(GameObject go, Transform arrival)
     {
         OnArrivedAtDestination?.Invoke(go, arrival);
+    }
+
+    protected void LogPathNodes()
+    {
+        var current = path.First;
+
+        while (current != null)
+        {
+            Debug.Log(current.Value.name); // or Debug.Log(current.Value.name) if it's a component or GameObject
+            current = current.Next;
+        }
     }
 
     protected void Walk()

@@ -21,7 +21,7 @@ public class TableManager : MonoBehaviour
     {
         foreach (Transform child in hostPlace)
         {
-            GameObject.Destroy(child.gameObject);
+            Destroy(child.gameObject);
         }
     }
 
@@ -29,7 +29,7 @@ public class TableManager : MonoBehaviour
     {
         foreach (Transform child in customerPlace)
         {
-            GameObject.Destroy(child.gameObject);
+            Destroy(child.gameObject);
         }
     }
 }

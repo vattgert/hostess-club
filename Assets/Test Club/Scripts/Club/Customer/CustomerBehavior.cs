@@ -6,6 +6,7 @@ public class CustomerBehavior : MonoBehaviour
     private Customer customer;
     [SerializeField]
     public Canvas countdownCanvas;
+    public bool FinishedSession = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {

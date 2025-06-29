@@ -1,5 +1,5 @@
-using System.Collections;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class ReceptionZone : MonoBehaviour
 {
@@ -24,38 +24,52 @@ public class ReceptionZone : MonoBehaviour
         FInputHold = new HoldInput(KeyCode.F);
     }
 
-    void Start()
-    {
-     
-    }
-
     private void SetCustomer(GameObject c)
     {
         customer = c;
         customerInZone = true;
+        SubscribeOnEntranceArrival(customer);
     }
 
     private void ResetCustomer()
     {
+        UnsubscribeOnEntranceArrival(customer);
         customerInZone = false;
         customer = null;
     }
 
+    private void WalkCustomerAway(GameObject customer, Transform arrival)
+    {
+        bool customerOnEntrancePoint = arrival.name == ComponentsNames.CustomerStartWaypoint;
+        CustomerBehavior cb = customer.GetComponent<CustomerBehavior>();
+        if (customerOnEntrancePoint && cb != null && cb.FinishedSession)
+        {
+            customer.SetActive(false);
+        }
+    }
+
+    private void SubscribeOnEntranceArrival(GameObject character)
+    {
+        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination += WalkCustomerAway;
+    }
+
+    private void UnsubscribeOnEntranceArrival(GameObject character)
+    {
+        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination -= WalkCustomerAway;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (shiftManager.ShiftActive())
+        if (other.CompareTag("Player"))
         {
-            if (other.CompareTag("Player"))
-            {
-                playerInZone = true;
-                Debug.Log("Player entered reception zone");
-            }
+            playerInZone = true;
+            Debug.Log("Player entered reception zone");
+        }
 
-            if (other.CompareTag("Customer"))
-            {
-                SetCustomer(other.gameObject);
-                Debug.Log("Customer entered reception zone");
-            }
+        if (other.CompareTag("Customer"))
+        {
+            SetCustomer(other.gameObject);
+            Debug.Log("Customer entered reception zone");
         }
     }
 
@@ -76,10 +90,7 @@ public class ReceptionZone : MonoBehaviour
 
     private void OnReceptionInputHold()
     {
-        if (customerInZone)
-        {
-            tablesManager.HighlightFreeTables();
-        }
+        tablesManager.HighlightFreeTables();
     }
 
     private void Update()
