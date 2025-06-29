@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2828549457602522065}
   - component: {fileID: 5014552723459408327}
   - component: {fileID: 4939967058829956346}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Customer
   m_TagString: Customer
   m_Icon: {fileID: 0}
@@ -105,6 +105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   countdownCanvas: {fileID: 3546299045318309738}
+  FinishedSession: 0
 --- !u!114 &2828549457602522065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,9 +284,17 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6102746769875715813, guid: 258ad863984652b4da4ccf60c867bd7a, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 8013357090437780537, guid: 258ad863984652b4da4ccf60c867bd7a, type: 3}
       propertyPath: m_Name
       value: CustomerWaitingCountdown
+      objectReference: {fileID: 0}
+    - target: {fileID: 8013357090437780537, guid: 258ad863984652b4da4ccf60c867bd7a, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
