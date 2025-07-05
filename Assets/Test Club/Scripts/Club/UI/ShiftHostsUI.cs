@@ -25,7 +25,7 @@ public class ShiftHostsUI : MonoBehaviour
         HostBehavior hostBehavior = hostGo.GetComponent<HostBehavior>();
         if (hostBehavior != null)
         {
-            Host host = hostBehavior.GetHost();
+            Host host = hostBehavior.Host;
             GameObject uiEntry = Instantiate(hostListItemPrefab, hostUIContainer);
             HostEntryUI hostEntry = uiEntry.GetComponent<HostEntryUI>();
             // Assuming the prefab has a Text component to display the hostess's name.

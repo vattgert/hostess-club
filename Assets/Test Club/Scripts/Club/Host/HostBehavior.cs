@@ -1,11 +1,23 @@
 using UnityEngine;
+using UnityEngine.InputSystem.LowLevel;
+
+public enum HostState
+{
+    Entering,
+    AssignedMovingToTable,
+    Seated,
+    InSession,
+    Leaving
+}
 
 public class HostBehavior : MonoBehaviour
 {
-    Host host;
+    public Host Host { get; private set; }
+    public HostState CurrentState { get; private set; }
+
     public void Initialize(Host host)
     {
-        this.host = host;
+        this.Host = host;
     }
 
     public void Activate()
@@ -18,8 +30,12 @@ public class HostBehavior : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public Host GetHost()
+    public void SetState(HostState state)
     {
-        return this.host;
+        if (CurrentState != state)
+        {
+            CurrentState = state;
+            Debug.Log($"Host {this.name} changed state to {CurrentState}");
+        }
     }
 }

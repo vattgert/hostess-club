@@ -2029,6 +2029,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shiftActive: 0
+  shiftTimer: {fileID: 905626263}
+  customersSpawner: {fileID: 905626265}
+  hostManager: {fileID: 905626266}
+  tablesManager: {fileID: 905626268}
+  customerInvitationManager: {fileID: 905626269}
 --- !u!4 &905626261
 Transform:
   m_ObjectHideFlags: 0
@@ -2133,7 +2138,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c12c266790587241a24da81f487a0c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shiftManager: {fileID: 905626260}
+  shiftTimer: {fileID: 905626263}
+  tablesManager: {fileID: 905626268}
+  customersSpawner: {fileID: 905626265}
+  hostManager: {fileID: 905626266}
   entrance: {fileID: 284566972}
+  invitationCooldown: 4
 --- !u!1 &910390721
 GameObject:
   m_ObjectHideFlags: 0

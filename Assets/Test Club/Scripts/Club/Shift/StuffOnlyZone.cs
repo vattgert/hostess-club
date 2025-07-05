@@ -38,7 +38,7 @@ public class StuffOnlyZone : MonoBehaviour
     {
         bool hostStartPoint = arrival.name == ComponentsNames.HostStartWaypoint;
         HostBehavior hb = host.GetComponent<HostBehavior>();
-        if (hostStartPoint && hb != null)
+        if (hostStartPoint && hb != null && hb.CurrentState == HostState.Leaving)
         {
             host.SetActive(false);
             shiftHostsUI.AddHostToList(host);

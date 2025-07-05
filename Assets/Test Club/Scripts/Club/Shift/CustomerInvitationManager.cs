@@ -1,29 +1,72 @@
 using System;
+using System.Linq;
 using UnityEngine;
+
+class InvitationCooldown
+{
+    private float lastUnbusyTime = -1f;
+    private readonly float cooldownDuration;
+
+    public InvitationCooldown(float cooldownDuration)
+    {
+        this.cooldownDuration = cooldownDuration;
+    }
+
+    public void Reset()
+    {
+        lastUnbusyTime = -1f;
+    }
+
+    public void NotifyBusy()
+    {
+        lastUnbusyTime = -1f;
+    }
+
+    public void NotifyUnbusy(float currentTimeLeft)
+    {
+        if (lastUnbusyTime < 0f)
+        {
+            lastUnbusyTime = currentTimeLeft;
+        }
+    }
+
+    public bool IsCooldownOver(float currentTimeLeft)
+    {
+        if (lastUnbusyTime < 0f)
+        {
+            return false;
+        }
+
+        return (lastUnbusyTime - currentTimeLeft) >= cooldownDuration;
+    }
+}
 
 public class CustomerInvitationManager : MonoBehaviour
 {
-    private int inviteInterval = 6;
-    private float nextInviteTime = 0;
-    bool invitingPaused = false;
-
+    [SerializeField]
+    private ShiftManager shiftManager;
+    [SerializeField]
     private ShiftTimer shiftTimer;
+    [SerializeField]
     private TablesManager tablesManager;
-    private CustomerManager customerManager;
+    [SerializeField]
+    private CustomersSpawner customersSpawner;
+    [SerializeField]
     private HostManager hostManager;
-
     [SerializeField]
     private SpriteRenderer entrance;
 
+
+    [SerializeField] 
+    private float invitationCooldown = 4f;
+    private InvitationCooldown inviteCooldown;
+
+    public event Action<CustomerBehavior> OnCustomerInvited;
+
     private void Awake()
     {
-        shiftTimer = gameObject.GetComponent<ShiftTimer>();
-        tablesManager = gameObject.GetComponent<TablesManager>();
-        customerManager = gameObject.GetComponent<CustomerManager>();
-        hostManager = gameObject.GetComponent<HostManager>();
+        inviteCooldown = new InvitationCooldown(invitationCooldown);
         shiftTimer.OnShiftTimerUpdate += ManageCustomerInvitation;
-        float firstCustomerInviteTime = shiftTimer.ShitDuration() - inviteInterval;
-        nextInviteTime = firstCustomerInviteTime;
     }
 
     private void SpawnCustomerNearEntrance(GameObject customer)
@@ -38,38 +81,40 @@ public class CustomerInvitationManager : MonoBehaviour
 
     private void InviteCustomer()
     {
-        GameObject customer = customerManager.GetCustomers().Pop();
+        GameObject customer = customersSpawner.GetCustomers().Pop();
         customer.SetActive(true);
         SpawnCustomerNearEntrance(customer);
+        CustomerBehavior cb = customer.GetComponent<CustomerBehavior>();
+        cb.SetState(CustomerState.Entering);
+        OnCustomerInvited?.Invoke(cb);
     }
 
-    private void ResetInviteTimer(float timeLeft)
+    private bool BusyToInvite()
     {
-        nextInviteTime = timeLeft - inviteInterval;
-        invitingPaused = false;
+        return shiftManager.ActiveCustomers().Any(c =>
+            c.CurrentState == CustomerState.Entering ||
+            c.CurrentState == CustomerState.AssignedMovingToTable
+        );
     }
 
     private void ManageCustomerInvitation(float timeLeft)
     {
-        if (tablesManager.HasFreeTables() && hostManager.HasAvailableHost())
+        bool customersToSpawn = customersSpawner.GetCustomers().Count > 0;
+        bool availableSeatAndHost = tablesManager.HasFreeTables() && hostManager.HasAvailableHost();
+        bool busyToInvite = BusyToInvite();
+
+        if (busyToInvite)
         {
-            // If tables are full - update next invite time, since when one of tables will be free
-            // the next customer must not be invited immediately, but only after 'inviteInterval' seconds
-            if (invitingPaused)
-            {
-                ResetInviteTimer(timeLeft);
-            }
-            bool hasCustomers = customerManager.GetCustomers().Count > 0;
-            bool hasAvailableHost = hostManager.GetShiftHosts().Count > 0;
-            bool timeToInvite = timeLeft <= nextInviteTime;
-            if (timeToInvite && hasCustomers && hasAvailableHost)
-            {
-                InviteCustomer();
-                nextInviteTime -= inviteInterval;
-            }
-        } else
+            inviteCooldown.NotifyBusy();
+            return;
+        }
+
+        inviteCooldown.NotifyUnbusy(timeLeft);
+
+        if (customersToSpawn && availableSeatAndHost && inviteCooldown.IsCooldownOver(timeLeft))
         {
-            invitingPaused = true;
+            InviteCustomer();
+            inviteCooldown.Reset();
         }
     }
 }

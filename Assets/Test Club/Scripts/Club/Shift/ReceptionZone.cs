@@ -104,6 +104,7 @@ public class ReceptionZone : MonoBehaviour
     public void WalkCustomerToSelectedTable(HostAndCustomerSession session)
     {
         GameObject table = session.gameObject;
+        customer.GetComponent<CustomerBehavior>().SetState(CustomerState.AssignedMovingToTable);
         customer.GetComponent<CustomerMovement>().WalkToTable(table);
     }
 }

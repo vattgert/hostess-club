@@ -175,7 +175,9 @@ public class TablesManager : MonoBehaviour
         UnsubscribeOnCharacterArrival(customer);
         UnsubscribeOnCharacterArrival(host);
         customer.GetComponent<CustomerMovement>().WalkFromTable(table);
+        customer.GetComponent<CustomerBehavior>().SetState(CustomerState.Leaving);
         host.GetComponent<HostMovement>().WalkFromTable(table);
+        host.GetComponent<HostBehavior>().SetState(HostState.Leaving);
     }
 
     private void SwapHostsBetweenSessions(HostAndCustomerSession target)

@@ -80,6 +80,7 @@ public class HostManager : MonoBehaviour
     private void WalkHostToAssignedTable(GameObject host, HostAndCustomerSession session)
     {
         GameObject table = session.gameObject;
+        host.GetComponent<HostBehavior>().SetState(HostState.AssignedMovingToTable);
         host.GetComponent<HostMovement>().WalkToTable(table);
     }
 
@@ -87,6 +88,7 @@ public class HostManager : MonoBehaviour
     {
         SpawnHostNearHostSpot(host);
         host.SetActive(true);
+        host.GetComponent<HostBehavior>().SetState(HostState.Entering);
         tablesManager.SubscribeOnCharacterArrival(host);
         WalkHostToAssignedTable(host, session);
     }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CustomerManager : MonoBehaviour
+public class CustomersSpawner : MonoBehaviour
 {
     private GameObject customersContainer;
     [SerializeField]
@@ -43,7 +43,7 @@ public class CustomerManager : MonoBehaviour
     }
 
     public void GenerateCustomersPoolForShift() { 
-        for(int i = 0; i < 1; i++)
+        for(int i = 0; i < 2; i++)
         {
             customers.Push(CreateCustomer());
         }

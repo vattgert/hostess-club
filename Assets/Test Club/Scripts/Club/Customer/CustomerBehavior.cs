@@ -1,9 +1,20 @@
 using TMPro;
 using UnityEngine;
 
+public enum CustomerState
+{
+    Entering,
+    AssignedMovingToTable,
+    Seated,
+    InSession,
+    Leaving
+}
+
 public class CustomerBehavior : MonoBehaviour
 {
-    private Customer customer;
+    public CustomerState CurrentState { get; private set; }
+    public Customer Customer { get; private set; }
+
     [SerializeField]
     public Canvas countdownCanvas;
     public bool FinishedSession = false;
@@ -15,7 +26,16 @@ public class CustomerBehavior : MonoBehaviour
 
     public void Initialize(Customer customer)
     {
-        this.customer = customer;
+        this.Customer = customer;
+    }
+
+    public void SetState(CustomerState newState)
+    {
+        if (CurrentState != newState)
+        {
+            CurrentState = newState;
+            Debug.Log($"Customer {this.name} changed state to {CurrentState}");
+        }
     }
 
     private void SetWaitingCountdownCanvas()
@@ -55,17 +75,12 @@ public class CustomerBehavior : MonoBehaviour
 
     public bool NextChargeOverflow()
     {
-        return (customer.Budget - customer.ChargeAmount) <= 0;
+        return (Customer.Budget - Customer.ChargeAmount) <= 0;
     }
 
     public int Charge()
     {
-        customer.Budget = customer.Budget - customer.ChargeAmount;
-        return customer.ChargeAmount;
-    }
-
-    public Customer GetCustomer()
-    {
-        return this.customer;
+        Customer.Budget = Customer.Budget - Customer.ChargeAmount;
+        return Customer.ChargeAmount;
     }
 }

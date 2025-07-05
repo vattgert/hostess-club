@@ -97,6 +97,7 @@ public class HostAndCustomerSession: MonoBehaviour
         if(waitingHostCoroutine == null)
         {
             Debug.Log("Customer waiting must start here but for now I skip it");
+            customer.GetComponent<CustomerBehavior>().SetState(CustomerState.Seated);
             //customer.GetComponent<CustomerBehavior>().ActivateWaitingUI();
             //waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
         }
@@ -150,8 +151,10 @@ public class HostAndCustomerSession: MonoBehaviour
         }
 
         assignedHost = hostGo;
+        HostBehavior hb = assignedCustomer.GetComponent<HostBehavior>();
+        hb.SetState(HostState.Seated);
         assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
-        Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
+        Host host = hb.Host;
         tablePanelUI.ShowPanel(host);
         if (shiftActive && serviceCoroutine == null)
         {
@@ -182,6 +185,7 @@ public class HostAndCustomerSession: MonoBehaviour
     /// </summary>
     private void StartServiceRoutine()
     {
+        assignedCustomer.GetComponent<CustomerBehavior>().SetState(CustomerState.InSession);
         serviceCoroutine = StartCoroutine(ServeCustomerRoutine());
     }
 
@@ -249,7 +253,7 @@ public class HostAndCustomerSession: MonoBehaviour
     private IEnumerator ServeCustomerRoutine()
     {
         float timeElapsed = 0f;
-        Host host = assignedHost.GetComponent<HostBehavior>().GetHost();
+        Host host = assignedHost.GetComponent<HostBehavior>().Host;
         CustomerBehavior customer = assignedCustomer.GetComponent<CustomerBehavior>();
         while (SessionActive() && timeElapsed < defaultSessionTime)
         {
@@ -267,21 +271,21 @@ public class HostAndCustomerSession: MonoBehaviour
             // Charge
             if (customer.NextChargeOverflow())
             {
-                Debug.Log($"Session ended due to customer balance overflow. \n{name} finished {timeElapsed} seconds with the client. \nCustomer balance: ${customer.GetCustomer().Budget}");
+                Debug.Log($"Session ended due to customer balance overflow. \n{name} finished {timeElapsed} seconds with the client. \nCustomer balance: ${customer.Customer.Budget}");
                 FinishSession();
             } else
             {
                 Debug.Log("Charging customer");
                 int charged = customer.Charge();
                 shiftData.AddEarning(host.Name, charged);
-                Debug.Log($"{name} charged {charged}. \nCustomer balance: ${customer.GetCustomer().Budget}");
+                Debug.Log($"{name} charged {charged}. \nCustomer balance: ${customer.Customer.Budget}");
             }
         }
 
         // If we exit because we've hit totalServiceTime, we can automatically unassign the hostess if desired.
         if (timeElapsed >= defaultSessionTime)
         {
-            Debug.Log($"Session ended due to time. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.GetCustomer().Budget}");
+            Debug.Log($"Session ended due to time. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.Customer.Budget}");
             FinishSession();
         }
 
