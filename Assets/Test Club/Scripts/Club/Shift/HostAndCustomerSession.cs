@@ -151,7 +151,7 @@ public class HostAndCustomerSession: MonoBehaviour
         }
 
         assignedHost = hostGo;
-        HostBehavior hb = assignedCustomer.GetComponent<HostBehavior>();
+        HostBehavior hb = assignedHost.GetComponent<HostBehavior>();
         hb.SetState(HostState.Seated);
         assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
         Host host = hb.Host;
