@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1] – 2025-07-06
+### Summary
+Fixed a critical bug
+
+### Fixed
+- Resolved critical bug which prevented a host to be assigned to a table on arrival
+
+---
+
 ## [0.1.0] – 2025-07-06
 ### Summary
 Initial milestone build containing all foundational systems, features, and logic prototypes. Marks the end of pre-dev experimentation and the beginning of structured development.
