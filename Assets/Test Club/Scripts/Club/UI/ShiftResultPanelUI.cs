@@ -51,7 +51,6 @@ public class ShiftResultPanelUI : MonoBehaviour
 
     private void OnDestroy()
     {
-        Debug.Log("Does ShiftResultUI destroy itself here?");
         if (shiftManager != null)
         {
             shiftManager.OnShiftFinished -= OnShiftFinishedEventHandler;

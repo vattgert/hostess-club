@@ -152,7 +152,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: -0.439}
+  m_AnchoredPosition: {x: 0, y: -0.333}
   m_SizeDelta: {x: 3, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3984743152916619203
@@ -380,7 +380,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 968e32b9b8bcbd74694676753a56b411, type: 3}
   m_Color: {r: 0.52156866, g: 0.28235295, b: 0.21176471, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -426,7 +426,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 1.5
 --- !u!1 &4461580230185268816
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +454,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4286028146124788067}
@@ -764,8 +764,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8590806919360536901}
-  m_Layer: 8
-  m_Name: Customer Place
+  - component: {fileID: 4390515786724903646}
+  m_Layer: 3
+  m_Name: CustomerSeat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -780,12 +781,25 @@ Transform:
   m_GameObject: {fileID: 6980679978561803640}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.657, y: 0, z: 0}
+  m_LocalPosition: {x: -2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2215379287674192298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4390515786724903646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6980679978561803640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96bb0dd1532d2994c9cf1e5363852ea3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  session: {fileID: 3721314235258459987}
 --- !u!1 &7505865075547834540
 GameObject:
   m_ObjectHideFlags: 0
@@ -795,8 +809,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 750941567988482209}
-  m_Layer: 8
-  m_Name: Host Place
+  - component: {fileID: 6121111719030845555}
+  m_Layer: 3
+  m_Name: HostSeat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -811,12 +826,25 @@ Transform:
   m_GameObject: {fileID: 7505865075547834540}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.687, y: 0, z: 0}
+  m_LocalPosition: {x: 2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2215379287674192298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6121111719030845555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7505865075547834540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31b0e237c18fdb64082b510352fbad7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  session: {fileID: 3721314235258459987}
 --- !u!1 &7588663082488606761
 GameObject:
   m_ObjectHideFlags: 0
@@ -847,8 +875,8 @@ Transform:
   m_GameObject: {fileID: 7588663082488606761}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -3.05, y: 2.45, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalPosition: {x: 0.5, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2215379287674192298}
@@ -899,7 +927,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 968e32b9b8bcbd74694676753a56b411, type: 3}
   m_Color: {r: 0.52156866, g: 0.28235295, b: 0.21176471, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -945,7 +973,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 1.5
 --- !u!114 &3721314235258459987
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -970,8 +998,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1afa1cd7dfe5234e97e2da5387f33a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  customerPlace: {fileID: 8590806919360536901}
-  hostPlace: {fileID: 750941567988482209}
+  customerSeat: {fileID: 8590806919360536901}
+  hostSeat: {fileID: 750941567988482209}
+  session: {fileID: 3721314235258459987}
 --- !u!114 &2547653157197599654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -984,4 +1013,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 457fd0e8d962e014a81f159bdb63d7d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints: []
+  customerWaypoints: []
+  hostWaypoints: []

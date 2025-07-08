@@ -1,17 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using UnityEngine.Tilemaps;
 
 public class ReceptionZone : MonoBehaviour
 {
     [SerializeField]
     private CustomerInvitationManager customerInvitationManager;
-
     [SerializeField]
     private ShiftManager shiftManager;
-
     [SerializeField]
     private TablesManager tablesManager;
-
+    [SerializeField]
+    private Transform customerExit;
 
     private bool playerInZone = false;
     private bool customerInZone = false;
@@ -28,45 +29,23 @@ public class ReceptionZone : MonoBehaviour
     {
         customer = c;
         customerInZone = true;
-        SubscribeOnEntranceArrival(customer);
     }
 
     private void ResetCustomer()
     {
-        UnsubscribeOnEntranceArrival(customer);
         customerInZone = false;
         customer = null;
     }
 
-    private void WalkCustomerAway(GameObject customer, Transform arrival)
-    {
-        bool customerOnEntrancePoint = arrival.name == ComponentsNames.CustomerStartWaypoint;
-        CustomerBehavior cb = customer.GetComponent<CustomerBehavior>();
-        if (customerOnEntrancePoint && cb != null && cb.FinishedSession)
-        {
-            customer.SetActive(false);
-        }
-    }
-
-    private void SubscribeOnEntranceArrival(GameObject character)
-    {
-        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination += WalkCustomerAway;
-    }
-
-    private void UnsubscribeOnEntranceArrival(GameObject character)
-    {
-        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination -= WalkCustomerAway;
-    }
-
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(Tags.Player))
         {
             playerInZone = true;
             Debug.Log("Player entered reception zone");
         }
 
-        if (other.CompareTag("Customer"))
+        if (other.CompareTag(Tags.Customer))
         {
             SetCustomer(other.gameObject);
             Debug.Log("Customer entered reception zone");
@@ -101,10 +80,17 @@ public class ReceptionZone : MonoBehaviour
         }
     }
 
-    public void WalkCustomerToSelectedTable(HostAndCustomerSession session)
+    public void MoveCustomerToSelectedTable(HostAndCustomerSession session)
     {
         GameObject table = session.gameObject;
+        TableManager tm = table.GetComponent<TableManager>();
+        Transform customerSeat = tm.CustomerSeat();
         customer.GetComponent<CustomerBehavior>().SetState(CustomerState.AssignedMovingToTable);
-        customer.GetComponent<CustomerMovement>().WalkToTable(table);
+        CharacterMovementController.Instance.AStarMoveTo(customer, customerSeat, true);
+    }
+
+    public Transform GetCustomerExit()
+    {
+        return customerExit;
     }
 }
