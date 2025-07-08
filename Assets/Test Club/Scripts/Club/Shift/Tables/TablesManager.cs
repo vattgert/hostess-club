@@ -4,17 +4,18 @@ public class TablesManager : MonoBehaviour
 {
     [SerializeField]
     private ShiftHostsUI shiftHostsUI;
-
+    private HostAndCustomerSession[] tables;
     [SerializeField]
     private ReceptionZone receptionZone;
+    [SerializeField]
+    private StuffOnlyZone stuffOnlyZone;
+    [SerializeField]
     private HostManager hostManager;
-    private HostAndCustomerSession[] tables;
     private GameObject selectedTable;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        hostManager = gameObject.GetComponent<HostManager>();
         tables = FindObjectsByType<HostAndCustomerSession>(FindObjectsSortMode.None);
         foreach(HostAndCustomerSession table in tables)
         {
@@ -131,7 +132,7 @@ public class TablesManager : MonoBehaviour
         bool hostFromTableAssignedToTable = selectedHost == null && selectedTable != null;
         if (session.TableFree())
         {
-            receptionZone.WalkCustomerToSelectedTable(session);
+            receptionZone.MoveCustomerToSelectedTable(session);
         }
         else if (hostFromListAssignedToTable)
         {
@@ -172,18 +173,17 @@ public class TablesManager : MonoBehaviour
         GameObject table = session.gameObject;
         GameObject customer = session.UnassignCustomer();
         GameObject host = session.UnassignHost();
-        UnsubscribeOnCharacterArrival(customer);
-        UnsubscribeOnCharacterArrival(host);
-        customer.GetComponent<CustomerMovement>().WalkFromTable(table);
         customer.GetComponent<CustomerBehavior>().SetState(CustomerState.Leaving);
-        host.GetComponent<HostMovement>().WalkFromTable(table);
+        CharacterMovementController.Instance.AStarMoveTo(customer, receptionZone.GetCustomerExit(), true);
         host.GetComponent<HostBehavior>().SetState(HostState.Leaving);
+        CharacterMovementController.Instance.AStarMoveTo(host, stuffOnlyZone.GetHostSpawnPoint(), true);
     }
 
     private void SwapHostsBetweenSessions(HostAndCustomerSession target)
     {
         Debug.Log("Swapping hosts between tables");
         HostAndCustomerSession source = selectedTable.GetComponent<HostAndCustomerSession>();
+        GameObject host = source.GetHost();
         GameObject sourceHost = source.UnassignHost();
         GameObject targetHost = target.UnassignHost();
         target.AssignHost(sourceHost);
@@ -211,31 +211,5 @@ public class TablesManager : MonoBehaviour
         {
             table.ClearSession();
         }
-    }
-
-    private void AssignCharacterToSession(GameObject character, Transform arrival)
-    {
-        HostAndCustomerSession session = arrival.GetComponentInParent<HostAndCustomerSession>();
-        if(session != null)
-        {
-            if (character.CompareTag("Customer"))
-            {
-                session.AssignCustomer(character);
-            }
-            else if (character.CompareTag("Host"))
-            {
-                session.AssignHost(character);
-            }
-        }
-    }
-
-    public void SubscribeOnCharacterArrival(GameObject character)
-    {
-        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination += AssignCharacterToSession;
-    }
-
-    private void UnsubscribeOnCharacterArrival(GameObject character)
-    {
-        character.GetComponent<WaypointsMovement>().OnArrivedAtDestination -= AssignCharacterToSession;
     }
 }

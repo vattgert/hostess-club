@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class HostManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class HostManager : MonoBehaviour
     private TablesManager tablesManager;
     [SerializeField]
     private Transform hostSpawnPoint;
+    [SerializeField]
+    private TilemapGridBuilder gridBuilder;
 
     private void Awake()
     {
@@ -80,8 +83,9 @@ public class HostManager : MonoBehaviour
     private void WalkHostToAssignedTable(GameObject host, HostAndCustomerSession session)
     {
         GameObject table = session.gameObject;
-        host.GetComponent<HostBehavior>().SetState(HostState.AssignedMovingToTable);
-        host.GetComponent<HostMovement>().WalkToTable(table);
+        TableManager tm = table.GetComponent<TableManager>();
+        Transform hostSeat = tm.HostSeat();
+        CharacterMovementController.Instance.AStarMoveTo(host, hostSeat, true);
     }
 
     public void CallHost(GameObject host, HostAndCustomerSession session)
@@ -89,7 +93,6 @@ public class HostManager : MonoBehaviour
         SpawnHostNearHostSpot(host);
         host.SetActive(true);
         host.GetComponent<HostBehavior>().SetState(HostState.Entering);
-        tablesManager.SubscribeOnCharacterArrival(host);
         WalkHostToAssignedTable(host, session);
     }
 }

@@ -38,7 +38,6 @@ public class CustomersSpawner : MonoBehaviour
             .SetActive(false)
             .Build();
         SetCustomerInContainer(customerGo);
-        tablesManager.SubscribeOnCharacterArrival(customerGo);
         return customerGo;
     }
 
