@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0] – 2025-07-12
+### Summary
+Implement A* algorhythm for characters' movement.
+
+### Changed
+- Waypoints movement is completely reworked into A* pathfinding algorhythm
+- Existing code is refactored to use A* characters movements
+
+---
+
 ## [0.1.1] – 2025-07-06
 ### Summary
 Fixed a critical bug
