@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class HostEntryClick : MonoBehaviour, IPointerClickHandler
 {
@@ -12,12 +11,6 @@ public class HostEntryClick : MonoBehaviour, IPointerClickHandler
     {
         tablesManager = FindFirstObjectByType<TablesManager>();
         shiftHostsUI = GetComponentInParent<ShiftHostsUI>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void OnPointerClick(PointerEventData eventData)

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class AStarMovement : MonoBehaviour
 {
@@ -11,7 +9,7 @@ public class AStarMovement : MonoBehaviour
     private bool moving = false;
     private List<Vector3> path;
     private int currentTargetIndex = 0;
-    public event Action<GameObject, Transform> OnArrivedAtDestination;
+    public Action<GameObject, Transform> OnArrivedAtDestination;
 
     private void RaiseArrivalEvent(GameObject go, Transform arrival)
     {
@@ -23,7 +21,7 @@ public class AStarMovement : MonoBehaviour
     {
         Debug.Log("On final position arrived");
         StopMoving();
-        RaiseArrivalEvent(this.gameObject, arrival);
+        RaiseArrivalEvent(gameObject, arrival);
     }
 
     private void Move()
@@ -32,12 +30,11 @@ public class AStarMovement : MonoBehaviour
         {
             if (path == null || path.Count == 0)
             {
-                Debug.Log("Object cannot move since there is something with the path");
                 return;
             }
             if (currentTargetIndex >= path.Count)
             {
-                Arrived(transform);
+                Arrived(transform); //TODO: I must add a final point transform here, not character's transform
                 return;
             }
 
@@ -48,6 +45,7 @@ public class AStarMovement : MonoBehaviour
             {
                 transform.position = target;
                 currentTargetIndex++;
+                Debug.Log("Current target index = " + currentTargetIndex + "; path length = " + path.Count);
             }
         }
     }

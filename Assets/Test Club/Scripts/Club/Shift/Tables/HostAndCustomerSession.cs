@@ -170,10 +170,10 @@ public class HostAndCustomerSession: MonoBehaviour
     {
         if (assignedHost != null)
         {
-            GameObject host = assignedHost;
-            //tableManager.RemoveHostFromPlace();
             tablePanelUI.HidePanel();
+            GameObject host = assignedHost;
             assignedHost = null;
+            serviceCoroutine = null; // Should I nullify it or put it "on pause" or something to that extent?
             return host;
         }
         return null;

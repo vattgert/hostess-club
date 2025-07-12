@@ -174,28 +174,30 @@ public class TablesManager : MonoBehaviour
         GameObject customer = session.UnassignCustomer();
         GameObject host = session.UnassignHost();
         customer.GetComponent<CustomerBehavior>().SetState(CustomerState.Leaving);
-        CharacterMovementController.Instance.AStarMoveTo(customer, receptionZone.GetCustomerExit(), true);
         host.GetComponent<HostBehavior>().SetState(HostState.Leaving);
-        CharacterMovementController.Instance.AStarMoveTo(host, stuffOnlyZone.GetHostSpawnPoint(), true);
+        CharacterMovementController.Instance.AStarMoveTo(customer, receptionZone.GetCustomerExit(), true);
+        CharacterMovementController.Instance.AStarMoveTo(host, stuffOnlyZone.HostSpawnPoint(), true);
     }
 
-    private void SwapHostsBetweenSessions(HostAndCustomerSession target)
+    private void SwapHostsBetweenSessions(HostAndCustomerSession targetSession)
     {
         Debug.Log("Swapping hosts between tables");
-        HostAndCustomerSession source = selectedTable.GetComponent<HostAndCustomerSession>();
-        GameObject host = source.GetHost();
-        GameObject sourceHost = source.UnassignHost();
-        GameObject targetHost = target.UnassignHost();
-        target.AssignHost(sourceHost);
-        source.AssignHost(targetHost);
+        HostAndCustomerSession sourceSession = selectedTable.GetComponent<HostAndCustomerSession>();
+        GameObject sourceHost = sourceSession.UnassignHost();
+        GameObject targetHost = targetSession.UnassignHost();
+        TableManager sourceTable = sourceSession.GetComponent<TableManager>();
+        TableManager targetTable = targetSession.GetComponent<TableManager>();
+        CharacterMovementController.Instance.AStarMoveTo(sourceHost, targetTable.HostSeat(), true);
+        CharacterMovementController.Instance.AStarMoveTo(targetHost, sourceTable.HostSeat(), true);
     }
 
     private void SwapHostsBetweenSessionAndList(GameObject newHost, HostAndCustomerSession session)
     {
         Debug.Log("Swapping hosts between table and host list");
         GameObject hostFromSession = session.UnassignHost();
-        session.AssignHost(newHost);
-        shiftHostsUI.AddHostToList(hostFromSession);
+        hostManager.CallHost(newHost, session);
+        TableManager table = session.GetComponent<TableManager>();
+        CharacterMovementController.Instance.AStarMoveTo(hostFromSession, stuffOnlyZone.HostSpawnPoint(), true);
     }
 
     public void SwapHostsBetweenSessionAndListAndClear(GameObject newHost, HostAndCustomerSession session)
