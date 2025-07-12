@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public class HostManager : MonoBehaviour
 {
@@ -9,7 +7,6 @@ public class HostManager : MonoBehaviour
     [SerializeField]
     private GameObject hostPrefab;
     private List<GameObject> hosts;
-    private TablesManager tablesManager;
     [SerializeField]
     private Transform hostSpawnPoint;
     [SerializeField]
@@ -17,7 +14,6 @@ public class HostManager : MonoBehaviour
 
     private void Awake()
     {
-        tablesManager = gameObject.GetComponent<TablesManager>();
         hostsContainer  = new GameObject(ComponentsNames.HostsContainer);
     }
     // Start is called once before the first execution of Update after the MonoBehaviour is created

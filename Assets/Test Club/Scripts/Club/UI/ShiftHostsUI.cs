@@ -68,7 +68,6 @@ public class ShiftHostsUI : MonoBehaviour
 
     public void RemoveHostFromList(GameObject host)
     {
-        host.GetComponent<HostBehavior>().Activate();
         if (hosts.Contains(host))
         {
             hosts.Remove(host);

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class CharacterMovementController : MonoBehaviour
 {
@@ -14,9 +13,9 @@ public class CharacterMovementController : MonoBehaviour
 
     private void OnArrivalSubscribe(AStarMovement movement, IOnArrivalHandler arrivalHandler)
     {
-        if (movement != null)
+        if (movement != null && arrivalHandler != null)
         {
-            movement.OnArrivedAtDestination += arrivalHandler.Arrived;
+            movement.OnArrivedAtDestination = arrivalHandler.Arrived;
             Debug.Log("Character subscribed on destination point arrival");
         }
         else

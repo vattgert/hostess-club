@@ -23,7 +23,7 @@ public class StuffOnlyZone : MonoBehaviour
         }
     }
 
-    public Transform GetHostSpawnPoint()
+    public Transform HostSpawnPoint()
     {
         return hostSpawnPoint;
     }
