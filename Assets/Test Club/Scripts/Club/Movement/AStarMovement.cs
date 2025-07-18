@@ -45,7 +45,6 @@ public class AStarMovement : MonoBehaviour
             {
                 transform.position = target;
                 currentTargetIndex++;
-                Debug.Log("Current target index = " + currentTargetIndex + "; path length = " + path.Count);
             }
         }
     }
