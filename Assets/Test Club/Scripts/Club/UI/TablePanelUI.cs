@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using Characters;
 
 public class TablePanelUI : MonoBehaviour
 {

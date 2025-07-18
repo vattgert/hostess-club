@@ -41,7 +41,7 @@ public class TilemapGridBuilder : MonoBehaviour
             }
             sb.AppendLine();
         }
-        Debug.Log(sb.ToString());
+        //Debug.Log(sb.ToString());
     }
 
     private void BuildGrid()

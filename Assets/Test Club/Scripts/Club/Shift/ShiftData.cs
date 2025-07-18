@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 public class ShiftData
 {
@@ -31,5 +32,10 @@ public class ShiftData
         CumulativeEarnedPerShift = 0;
         EarnedPerHost.Clear();
         ServedCustomers = 0;
+    }
+
+    public override string ToString()
+    {
+        return "Earned per shift: " + CumulativeEarnedPerShift + "\n" + "Served customers: " + ServedCustomers;
     }
 }

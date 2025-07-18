@@ -1791,6 +1791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   customerPrefab: {fileID: 3720856521467080966, guid: dfbd85c5cb9366c4d83a62edb58094f2, type: 3}
+  traitsLibrary: {fileID: 11400000, guid: c715df16c84ea0c4fb272558290737e2, type: 2}
 --- !u!114 &905626266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1806,6 +1807,7 @@ MonoBehaviour:
   hostPrefab: {fileID: 3720856521467080966, guid: c0320d5bdd761844a866bad0c3443648, type: 3}
   hostSpawnPoint: {fileID: 1647172152}
   gridBuilder: {fileID: 1415036671}
+  traitsLibrary: {fileID: 11400000, guid: c715df16c84ea0c4fb272558290737e2, type: 2}
 --- !u!114 &905626268
 MonoBehaviour:
   m_ObjectHideFlags: 0

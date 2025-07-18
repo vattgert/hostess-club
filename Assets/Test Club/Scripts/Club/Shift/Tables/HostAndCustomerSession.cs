@@ -1,14 +1,36 @@
+using Session;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using Characters;
+
+public struct SessionSettings {
+    public float Duration { get; private set; }
+    public float ChargeInterval { get; private set; }
+
+    public SessionSettings(float duration, float chargeInterval)
+    {
+        Duration = duration;
+        ChargeInterval = chargeInterval;
+    }
+
+    public override string ToString()
+    {
+        return "Duration: " + Duration + "\n"  + "Charge interval: " + ChargeInterval;
+    }
+}
 
 public class HostAndCustomerSession: MonoBehaviour
 {
     private bool shiftActive;
     private readonly float waitingForHostTime = 10f;
-    private readonly float defaultSessionTime = 40f;
+    private readonly float DEFAULT_SESSION_TIME = 40f;
+    private readonly float SESSION_COROUTINE_TICK_INTERVAL = 1f;
 
-    private ShiftData shiftData;
+    public SessionSettings SessionSettings { get; private set; }
+    public SessionBilling SessionBilling { get; private set; }
+    public ShiftData ShiftData { get; private set; }
 
     private ClubManager clubManager;
 
@@ -19,22 +41,24 @@ public class HostAndCustomerSession: MonoBehaviour
 
     private GameObject assignedHost;
 
-    private TableManager tableManager;
     private TablePanelUI tablePanelUI;
 
+    private List<ISessionModifier> modifiers = new();
+
+    public SessionEvents SessionEvents { get; private set; }
     public event Action<HostAndCustomerSession> OnSessionFinished;
     public event Action<GameObject> OnHostAssigned;
 
     private void Awake()
     {
         clubManager = ClubManager.GetInstance();
-        tableManager = gameObject.GetComponentInChildren<TableManager>();
+        SessionEvents = new SessionEvents();
         tablePanelUI = gameObject.GetComponentInChildren<TablePanelUI>();
     }
 
     void Start()
     {
-        shiftData = FindFirstObjectByType<ShiftManager>().GetShiftData();
+        ShiftData = FindFirstObjectByType<ShiftManager>().GetShiftData();
     }
 
     /// <summary>
@@ -87,6 +111,14 @@ public class HostAndCustomerSession: MonoBehaviour
     }
 
     /// <summary>
+    /// Returns the current session customer
+    /// </summary>
+    public GameObject Customer()
+    {
+        return assignedCustomer;
+    }
+
+    /// <summary>
     /// Assigns a customer to the session
     /// </summary>
     public void AssignCustomer(GameObject customer)
@@ -98,6 +130,7 @@ public class HostAndCustomerSession: MonoBehaviour
         {
             Debug.Log("Customer waiting must start here but for now I skip it");
             customer.GetComponent<CustomerBehavior>().SetState(CustomerState.Seated);
+            customer.GetComponent<CustomerReactions>().Setup(SessionEvents);
             //customer.GetComponent<CustomerBehavior>().ActivateWaitingUI();
             //waitingHostCoroutine = StartCoroutine(WaitForHostToBeAssignedRoutine());
         }
@@ -128,7 +161,7 @@ public class HostAndCustomerSession: MonoBehaviour
     /// <summary>
     /// Returns the current session host
     /// </summary>
-    public GameObject GetHost()
+    public GameObject Host()
     {
         return assignedHost;
     }
@@ -153,12 +186,12 @@ public class HostAndCustomerSession: MonoBehaviour
         assignedHost = hostGo;
         HostBehavior hb = assignedHost.GetComponent<HostBehavior>();
         hb.SetState(HostState.Seated);
-        assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
+        //assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
         Host host = hb.Host;
         tablePanelUI.ShowPanel(host);
         if (shiftActive && serviceCoroutine == null)
         {
-            StartServiceRoutine();
+            StartSession();
         }
         OnHostAssigned?.Invoke(assignedHost);
     }
@@ -178,6 +211,28 @@ public class HostAndCustomerSession: MonoBehaviour
         }
         return null;
         // Here I must run waiting timer for customer
+    }
+
+    private void SetSessionSettings()
+    {
+        Host host = assignedHost.GetComponent<HostBehavior>().Host;
+        SessionSettings = new SessionSettings(DEFAULT_SESSION_TIME, host.ChargeInterval);
+    }
+
+    private void SetSessionBilling()
+    {
+        Host host = assignedHost.GetComponent<HostBehavior>().Host;
+        Customer customer = assignedCustomer.GetComponent<CustomerBehavior>().Customer;
+        SessionBilling = new SessionBilling(host, customer, ShiftData);
+    }
+
+    private void StartSession()
+    {
+        Debug.Log("Starting the session");
+        SetSessionSettings();
+        SetSessionBilling();
+        StartModifiers();
+        StartServiceRoutine();
     }
 
     /// <summary>
@@ -201,10 +256,11 @@ public class HostAndCustomerSession: MonoBehaviour
     /// <summary>
     /// Finishes the session
     /// </summary>
-    private void FinishSession()
+    public void FinishSession()
     {
         OnSessionFinished.Invoke(this);
-        shiftData.AddServedCustomer();
+        ClearModifiers();
+        ShiftData.AddServedCustomer();
     }
 
     /// <summary>
@@ -255,12 +311,11 @@ public class HostAndCustomerSession: MonoBehaviour
         float timeElapsed = 0f;
         Host host = assignedHost.GetComponent<HostBehavior>().Host;
         CustomerBehavior customer = assignedCustomer.GetComponent<CustomerBehavior>();
-        while (SessionActive() && timeElapsed < defaultSessionTime)
+        while (SessionActive() && timeElapsed < SessionSettings.Duration)
         {
             // Wait M seconds
-            yield return new WaitForSeconds(host.ChargeInterval);
-            timeElapsed += host.ChargeInterval;
-
+            yield return new WaitForSeconds(SESSION_COROUTINE_TICK_INTERVAL);
+            timeElapsed += SESSION_COROUTINE_TICK_INTERVAL;
             // Check if we became unassigned or the shift ended during the wait
             if (!shiftActive || !HostAssigned())
             {
@@ -268,27 +323,43 @@ public class HostAndCustomerSession: MonoBehaviour
                 yield break;
             }
 
-            // Charge
-            if (customer.NextChargeOverflow())
-            {
-                Debug.Log($"Session ended due to customer balance overflow. \n{name} finished {timeElapsed} seconds with the client. \nCustomer balance: ${customer.Customer.Budget}");
-                FinishSession();
-            } else
-            {
-                Debug.Log("Charging customer");
-                int charged = customer.Charge();
-                shiftData.AddEarning(host.Name, charged);
-                Debug.Log($"{name} charged {charged}. \nCustomer balance: ${customer.Customer.Budget}");
-            }
+            UpdateModifiers(SESSION_COROUTINE_TICK_INTERVAL);
         }
 
-        // If we exit because we've hit totalServiceTime, we can automatically unassign the hostess if desired.
-        if (timeElapsed >= defaultSessionTime)
+        // Session time expired
+        if (timeElapsed >= SessionSettings.Duration)
         {
             Debug.Log($"Session ended due to time. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.Customer.Budget}");
             FinishSession();
         }
 
         serviceCoroutine = null;
+    }
+
+    private void StartModifiers()
+    {
+        modifiers.Add(new ChargeModifier());
+        modifiers.Add(new CompatibilityModifier());
+        foreach (var modifier in modifiers)
+        {
+            Debug.Log(modifier.GetType());
+            modifier.OnSessionStart(this);
+        }
+    }
+
+    private void UpdateModifiers(float timeLeft)
+    {
+        foreach (var modifier in modifiers)
+        {
+            modifier.OnSessionUpdate(this, timeLeft);
+        }
+    }
+
+    private void ClearModifiers()
+    {
+        foreach (var modifier in modifiers)
+        {
+            modifier.OnSessionEnd(this);
+        }
     }
 }
