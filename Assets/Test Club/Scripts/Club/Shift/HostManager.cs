@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Characters;
 
 public class HostManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class HostManager : MonoBehaviour
     private Transform hostSpawnPoint;
     [SerializeField]
     private TilemapGridBuilder gridBuilder;
+    [SerializeField]
+    private TraitsLibrary traitsLibrary;
 
     private void Awake()
     {
@@ -30,6 +33,8 @@ public class HostManager : MonoBehaviour
     private GameObject CreateHost()
     {
         Host host = new Host();
+        host.SetPersonality(traitsLibrary.GetRandomTrait(TraitCategory.Personality));
+        host.SetAppearance(traitsLibrary.GetRandomTrait(TraitCategory.Appearance));
         GameObject hostGo = new HostBuilder(hostPrefab)
             .SetHostData(host)
             .SetActive(false)

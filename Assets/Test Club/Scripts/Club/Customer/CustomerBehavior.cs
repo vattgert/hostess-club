@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using Characters;
 
 public enum CustomerState
 {
@@ -71,16 +72,5 @@ public class CustomerBehavior : MonoBehaviour
         {
             countdownCanvas.gameObject.SetActive(false);
         }
-    }
-
-    public bool NextChargeOverflow()
-    {
-        return (Customer.Budget - Customer.ChargeAmount) <= 0;
-    }
-
-    public int Charge()
-    {
-        Customer.Budget = Customer.Budget - Customer.ChargeAmount;
-        return Customer.ChargeAmount;
     }
 }

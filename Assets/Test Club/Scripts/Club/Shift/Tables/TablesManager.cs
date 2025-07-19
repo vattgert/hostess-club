@@ -121,7 +121,7 @@ public class TablesManager : MonoBehaviour
         if (session.SessionActive())
         {
             SelectTable(session.gameObject);
-            HightlightActiveTables(session.GetHost());
+            HightlightActiveTables(session.Host());
         }
     }
 

@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Characters;
 
 public class CustomersSpawner : MonoBehaviour
 {
-    private GameObject customersContainer;
     [SerializeField]
     private GameObject customerPrefab;
-    private TablesManager tablesManager;
+    [SerializeField]
+    private TraitsLibrary traitsLibrary;
+    private GameObject customersContainer;
     private Stack<GameObject> customers;
 
     void Awake()
     {
-        tablesManager = gameObject.GetComponent<TablesManager>();
         customersContainer = new GameObject(ComponentsNames.CustomersContainer);
     }
 
@@ -33,6 +34,8 @@ public class CustomersSpawner : MonoBehaviour
     private GameObject CreateCustomer()
     {
         Customer customer = new Customer(CustomerType.Poor);
+        customer.SetAppearancePreference(traitsLibrary.GetRandomTrait(TraitCategory.Appearance));
+        customer.SetPersonalityPreference(traitsLibrary.GetRandomTrait(TraitCategory.Personality));
         GameObject customerGo = new CustomerBuilder(customerPrefab)
             .SetCustomerData(customer)
             .SetActive(false)
