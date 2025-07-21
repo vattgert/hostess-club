@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0] – 2025-07-21
+### Summary
+
+Implemented session modifiers that introduce additional logic into host-customer sessions.
+
+### Changed
+- Reworked the charge customer logic: charging is now handled through a session modifier. The main session code is now focused solely on the timer loop.
+- Added basic host traits.
+- Added basic customer preferences.
+- Added a compatibility calculator between host traits and customer preferences.
+- Introduced a compatibility-based session modifier, which applies a bonus or penalty to the amount of money a host receives based on compatibility.
+- Added simple customer reaction effects to compatibility (using the particle system).
+
+---
+
 ## [0.2.0] – 2025-07-12
 ### Summary
 Implement A* algorhythm for characters' movement.
