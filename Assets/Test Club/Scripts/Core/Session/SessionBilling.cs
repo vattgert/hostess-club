@@ -53,17 +53,17 @@ namespace Session
 
         public bool NextChargeOverflow()
         {
-            BillingResult preview = CalculateBilling();
-            return (customer.Budget - preview.Charged) <= 0;
+            BillingResult billing = CalculateBilling();
+            return (customer.Budget - billing.Charged) <= 0;
         }
 
         public BillingResult Bill()
         {
-            BillingResult result = CalculateBilling();
-            customer.Budget = customer.Budget - result.Charged;
-            shiftData.AddEarning(host.Name, result.Earned);
-            Debug.Log($"Customer was charged ${result.Charged}. \n{host.Name} earned {result.Earned}. \nCustomer balance: ${customer.Budget}");
-            return result;
+            BillingResult billing = CalculateBilling();
+            customer.Budget = customer.Budget - billing.Charged;
+            shiftData.AddEarning(host.Name, billing.Earned);
+            Debug.Log($"Customer was charged ${billing.Charged}. \n{host.Name} earned {billing.Earned}. \nCustomer balance: ${customer.Budget}");
+            return billing;
         }
 
         public void AddModifier(IChargeModifier modifier) => modifiers.Add(modifier);

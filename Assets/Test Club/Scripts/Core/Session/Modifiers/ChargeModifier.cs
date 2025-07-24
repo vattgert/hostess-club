@@ -16,14 +16,14 @@ namespace Session
             if (chargeTimer >= session.SessionSettings.ChargeInterval)
             {
                 chargeTimer = 0;
-                //// Charge
+                // Charge
                 CustomerBehavior cb = session.Customer().GetComponent<CustomerBehavior>();
                 Host host = session.Host().GetComponent<HostBehavior>().Host;
 
                 if (session.SessionBilling.NextChargeOverflow())
                 {
                     Debug.Log($"Session ended due to customer balance overflow. \n{host.Name} finished {timeElapsed} seconds with the client. \nCustomer balance: ${cb.Customer.Budget}");
-                    session.FinishSession();
+                    session.QueueFinishSession();
                 }
                 else
                 {

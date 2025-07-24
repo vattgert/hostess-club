@@ -5,14 +5,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using Characters;
 
-public struct SessionSettings {
+public class SessionSettings {
     public float Duration { get; private set; }
     public float ChargeInterval { get; private set; }
+    public Compatibility Compatibility { get; private set; }
 
     public SessionSettings(float duration, float chargeInterval)
     {
         Duration = duration;
         ChargeInterval = chargeInterval;
+        Compatibility = Compatibility.Partial;
+    }
+
+    public void SetCompatibility(Compatibility compatibility)
+    {
+        Compatibility = compatibility;
     }
 
     public override string ToString()
@@ -27,15 +34,17 @@ public class HostAndCustomerSession: MonoBehaviour
     private readonly float waitingForHostTime = 10f;
     private readonly float DEFAULT_SESSION_TIME = 40f;
     private readonly float SESSION_COROUTINE_TICK_INTERVAL = 1f;
+    private bool sessionFinishQueued = false;
 
+    public float TimeElapsed { get; private set; }
     public SessionSettings SessionSettings { get; private set; }
     public SessionBilling SessionBilling { get; private set; }
     public ShiftData ShiftData { get; private set; }
 
-    private ClubManager clubManager;
-
     private Coroutine serviceCoroutine;
     private Coroutine waitingHostCoroutine;
+
+    private ClubManager clubManager;
 
     private GameObject assignedCustomer;
 
@@ -147,11 +156,6 @@ public class HostAndCustomerSession: MonoBehaviour
             assignedCustomer.GetComponent<CustomerBehavior>().StopWaiting();
             assignedCustomer.GetComponent<CustomerBehavior>().FinishedSession = true;
             assignedCustomer = null;
-            // Stop charging if the hostess was in the middle of servicing
-            if (serviceCoroutine != null)
-            {
-                StopServiceRoutine();
-            }
             tablePanelUI.ClearUI();
             return customer;
         }
@@ -197,7 +201,7 @@ public class HostAndCustomerSession: MonoBehaviour
     }
 
     /// <summary>
-    /// Unassignes hostess from the table
+    /// Unassignes host from the table
     /// </summary>
     public GameObject UnassignHost()
     {
@@ -213,12 +217,18 @@ public class HostAndCustomerSession: MonoBehaviour
         // Here I must run waiting timer for customer
     }
 
+    /// <summary>
+    /// Set data structure to store session various data
+    /// </summary>
     private void SetSessionSettings()
     {
         Host host = assignedHost.GetComponent<HostBehavior>().Host;
         SessionSettings = new SessionSettings(DEFAULT_SESSION_TIME, host.ChargeInterval);
     }
 
+    /// <summary>
+    /// Set data structure to store session billing data
+    /// </summary>
     private void SetSessionBilling()
     {
         Host host = assignedHost.GetComponent<HostBehavior>().Host;
@@ -226,9 +236,13 @@ public class HostAndCustomerSession: MonoBehaviour
         SessionBilling = new SessionBilling(host, customer, ShiftData);
     }
 
+    /// <summary>
+    /// Starts the session and perform all preparations for it
+    /// </summary>
     private void StartSession()
     {
         Debug.Log("Starting the session");
+        TimeElapsed = 0f;
         SetSessionSettings();
         SetSessionBilling();
         StartModifiers();
@@ -236,7 +250,7 @@ public class HostAndCustomerSession: MonoBehaviour
     }
 
     /// <summary>
-    /// Starts a coroutine of serving the customer by the hostess
+    /// Starts a coroutine of serving the customer by the host
     /// </summary>
     private void StartServiceRoutine()
     {
@@ -256,11 +270,27 @@ public class HostAndCustomerSession: MonoBehaviour
     /// <summary>
     /// Finishes the session
     /// </summary>
-    public void FinishSession()
+    private void FinishSession()
     {
-        OnSessionFinished.Invoke(this);
+        sessionFinishQueued = false;
+        StopServiceRoutine();
         ClearModifiers();
+        OnSessionFinished.Invoke(this);
         ShiftData.AddServedCustomer();
+    }
+
+    /// <summary>
+    /// Queues the session to finish safely after the current modifier update loop.
+    /// </summary>
+    /// This is necessary because calling FinishSession() directly from within a session modifier 
+    /// (e.g. when a customer's budget runs out) would modify the 'modifiers' collection while 
+    /// it is being iterated over, causing an InvalidOperationException. 
+    /// 
+    /// By deferring the session termination until after the loop completes, 
+    /// we ensure safe execution without modifying the collection during enumeration.
+    public void QueueFinishSession()
+    {
+        sessionFinishQueued = true;
     }
 
     /// <summary>
@@ -273,6 +303,9 @@ public class HostAndCustomerSession: MonoBehaviour
         UnassignCustomer();
     }
 
+    /// <summary>
+    /// Customer's timer for a host to be assigned to his table
+    /// </summary>
     private IEnumerator WaitForHostToBeAssignedRoutine()
     {
         Debug.Log("Start waiting for a host");
@@ -308,34 +341,39 @@ public class HostAndCustomerSession: MonoBehaviour
     /// </summary>
     private IEnumerator ServeCustomerRoutine()
     {
-        float timeElapsed = 0f;
         Host host = assignedHost.GetComponent<HostBehavior>().Host;
         CustomerBehavior customer = assignedCustomer.GetComponent<CustomerBehavior>();
-        while (SessionActive() && timeElapsed < SessionSettings.Duration)
+        while (SessionActive() && TimeElapsed < SessionSettings.Duration)
         {
             // Wait M seconds
             yield return new WaitForSeconds(SESSION_COROUTINE_TICK_INTERVAL);
-            timeElapsed += SESSION_COROUTINE_TICK_INTERVAL;
+            TimeElapsed = Mathf.Min(TimeElapsed + SESSION_COROUTINE_TICK_INTERVAL, SessionSettings.Duration);
             // Check if we became unassigned or the shift ended during the wait
             if (!shiftActive || !HostAssigned())
             {
-                // End early if conditions are no longer met
                 yield break;
             }
-
             UpdateModifiers(SESSION_COROUTINE_TICK_INTERVAL);
+            if (sessionFinishQueued)
+            {
+                FinishSession();
+                yield break;
+            }
         }
 
         // Session time expired
-        if (timeElapsed >= SessionSettings.Duration)
+        if (TimeElapsed >= SessionSettings.Duration)
         {
-            Debug.Log($"Session ended due to time. \n{name} finished {timeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.Customer.Budget}");
+            Debug.Log($"Session ended due to time. \n{name} finished {TimeElapsed} seconds with the client. \nClub balance: {clubManager.GetCurrentBalance()}. \nCustomer balance: ${customer.Customer.Budget}");
             FinishSession();
         }
 
-        serviceCoroutine = null;
+        //serviceCoroutine = null;
     }
 
+    /// <summary>
+    /// Call OnSessionStart for all session modifiers
+    /// </summary>
     private void StartModifiers()
     {
         modifiers.Add(new ChargeModifier());
@@ -347,6 +385,9 @@ public class HostAndCustomerSession: MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Call OnSessionUpdate for all session modifiers
+    /// </summary>
     private void UpdateModifiers(float timeLeft)
     {
         foreach (var modifier in modifiers)
@@ -355,11 +396,15 @@ public class HostAndCustomerSession: MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Call OnSessionEnd for all session modifiers
+    /// </summary>
     private void ClearModifiers()
     {
         foreach (var modifier in modifiers)
         {
             modifier.OnSessionEnd(this);
         }
+        modifiers.Clear();
     }
 }
