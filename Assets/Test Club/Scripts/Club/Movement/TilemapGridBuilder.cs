@@ -47,15 +47,11 @@ public class TilemapGridBuilder : MonoBehaviour
     private void BuildGrid()
     {
         BoundsInt bounds = floorTilemap.cellBounds;
-        Debug.Log("Actual size occupied: " + bounds.ToString());
-        Debug.Log($"Bounds min: {bounds.min}, max: {bounds.max}, size: {bounds.size}");
         gridOrigin = bounds.min;
         cellSize = floorTilemap.cellSize;
 
         int width = bounds.size.x;
         int height = bounds.size.y;
-        Debug.Log("Width " + width);
-        Debug.Log("Height " + height);
         walkableGrid = new bool[width, height];
 
         for (int x = 0; x < width; x++)
