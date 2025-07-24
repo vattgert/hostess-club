@@ -858,7 +858,6 @@ GameObject:
   - component: {fileID: 3596764666204688565}
   - component: {fileID: 3721314235258459987}
   - component: {fileID: 6159785681472953205}
-  - component: {fileID: 2547653157197599654}
   m_Layer: 8
   m_Name: TableContainer
   m_TagString: Untagged
@@ -1001,17 +1000,3 @@ MonoBehaviour:
   customerSeat: {fileID: 8590806919360536901}
   hostSeat: {fileID: 750941567988482209}
   session: {fileID: 3721314235258459987}
---- !u!114 &2547653157197599654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7588663082488606761}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 457fd0e8d962e014a81f159bdb63d7d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  customerWaypoints: []
-  hostWaypoints: []

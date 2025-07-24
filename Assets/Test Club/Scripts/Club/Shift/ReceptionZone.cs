@@ -1,3 +1,5 @@
+using Characters;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ReceptionZone : MonoBehaviour
@@ -12,7 +14,7 @@ public class ReceptionZone : MonoBehaviour
     private Transform customerExit;
 
     private bool playerInZone = false;
-    private bool customerInZone = false;
+    private Queue<GameObject> customersInZone = new Queue<GameObject>();
     private GameObject customer;
 
     private HoldInput FInputHold;
@@ -24,14 +26,23 @@ public class ReceptionZone : MonoBehaviour
 
     private void SetCustomer(GameObject c)
     {
-        customer = c;
-        customerInZone = true;
+        CustomerBehavior cb = c.GetComponent<CustomerBehavior>();
+        if(cb != null && cb.CurrentState == CustomerState.Entering)
+        {
+            customersInZone.Enqueue(c);
+        } else
+        {
+            Debug.Log($"Customer either does not exist or entrance or has current status {cb.CurrentState}");
+        }
     }
 
-    private void ResetCustomer()
+    private void ResetCustomer(GameObject c)
     {
-        customerInZone = false;
-        customer = null;
+        if(c == customersInZone.Peek())
+        {
+            customersInZone.Dequeue();
+            customer = null;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -59,26 +70,41 @@ public class ReceptionZone : MonoBehaviour
 
         if (other.CompareTag("Customer"))
         {
-            ResetCustomer();
+            ResetCustomer(other.gameObject);
             Debug.Log("Customer exited reception zone");
         }
     }
 
     private void OnReceptionInputHold()
     {
-        tablesManager.HighlightFreeTables();
+        Debug.Log("Shift active to invite: " + shiftManager.ShiftActive());
+        if (shiftManager.ShiftActive() && playerInZone)
+        {
+            tablesManager.HighlightFreeTables();
+            customer = customersInZone.Peek();
+        }
     }
 
     private void Update()
     {
-        if (shiftManager.ShiftActive() && playerInZone && customerInZone)
+        FInputHold.Hold(OnReceptionInputHold);
+    }
+
+    private void OnEnable()
+    {
+        if (FInputHold == null)
         {
-            FInputHold.Hold(OnReceptionInputHold);
+            FInputHold = new HoldInput(KeyCode.F);
         }
     }
 
     public void MoveCustomerToSelectedTable(HostAndCustomerSession session)
     {
+        if(customer == null)
+        {
+            Debug.Log("Cannot move customer to the selected table. Customer is null");
+            return;
+        }
         GameObject table = session.gameObject;
         TableManager tm = table.GetComponent<TableManager>();
         Transform customerSeat = tm.CustomerSeat();
