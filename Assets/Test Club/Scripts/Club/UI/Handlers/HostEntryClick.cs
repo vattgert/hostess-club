@@ -16,7 +16,7 @@ public class HostEntryClick : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         HostEntryUI hostUI = gameObject.GetComponent<HostEntryUI>();
-        if(hostUI != null)
+        if(hostUI != null && hostUI.Available())
         {
             GameObject host = hostUI.GetHost();
             GameObject selectedTable = tablesManager.SelectedTable();

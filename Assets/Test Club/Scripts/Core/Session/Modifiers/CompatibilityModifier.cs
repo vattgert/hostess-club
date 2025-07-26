@@ -59,6 +59,7 @@ namespace Session
             Customer customer = session.Customer().GetComponent<CustomerBehavior>().Customer;
             Compatibility compatibility = CompatibilityCalcualtor.Calculate(host, customer);
             Debug.Log($"Host has {compatibility} compatibility with the customer");
+            session.SessionSettings.SetCompatibility(compatibility);
             CompatibilityChargeModifier modifier = CalculateChargeModification(compatibility);
             if (modifier != null)
             {
