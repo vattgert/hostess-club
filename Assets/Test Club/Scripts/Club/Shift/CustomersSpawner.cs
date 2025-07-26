@@ -8,6 +8,8 @@ public class CustomersSpawner : MonoBehaviour
     private GameObject customerPrefab;
     [SerializeField]
     private TraitsLibrary traitsLibrary;
+    [SerializeField]
+    private int spawnPerShift;
     private GameObject customersContainer;
     private Stack<GameObject> customers;
 
@@ -45,7 +47,7 @@ public class CustomersSpawner : MonoBehaviour
     }
 
     public void GenerateCustomersPoolForShift() { 
-        for(int i = 0; i < 2; i++)
+        for(int i = 0; i < spawnPerShift; i++)
         {
             customers.Push(CreateCustomer());
         }

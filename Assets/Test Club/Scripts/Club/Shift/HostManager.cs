@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Characters;
+using System.Linq;
 
 public class HostManager : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class HostManager : MonoBehaviour
     private TilemapGridBuilder gridBuilder;
     [SerializeField]
     private TraitsLibrary traitsLibrary;
+    [SerializeField]
+    private int spawnPerShift;
 
     private void Awake()
     {
@@ -45,7 +48,7 @@ public class HostManager : MonoBehaviour
 
     public void GenerateShiftHosts()
     {
-        for (int i = 0; i < 2; i++)
+        for (int i = 0; i < spawnPerShift; i++)
         {
             
             hosts.Add(CreateHost());
@@ -59,7 +62,7 @@ public class HostManager : MonoBehaviour
 
     public bool HasAvailableHost()
     {
-        return hosts.Count > 0;
+        return hosts.Count > 0 && hosts.Any(host => !host.GetComponent<HostBehavior>().Host.Exhausted());
     }
 
     public void RemoveHost(GameObject host)

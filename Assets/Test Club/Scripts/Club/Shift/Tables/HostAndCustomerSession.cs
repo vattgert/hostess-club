@@ -378,6 +378,7 @@ public class HostAndCustomerSession: MonoBehaviour
     {
         modifiers.Add(new ChargeModifier());
         modifiers.Add(new CompatibilityModifier());
+        modifiers.Add(new HostStaminaModifier());
         foreach (var modifier in modifiers)
         {
             Debug.Log(modifier.GetType());
